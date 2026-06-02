@@ -64,18 +64,44 @@
         </div>
     </header>
 
-    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[2000] p-8 shadow-2xl flex flex-col">
-        <div class="flex justify-between items-center mb-8 border-b pb-4">
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[2000] p-6 shadow-2xl flex flex-col overflow-y-auto">
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
             <h3 class="text-2xl font-serif italic">Tu Pedido</h3>
             <button onclick="toggleCart()" class="text-3xl text-gray-300 hover:text-black">&times;</button>
         </div>
-        <div id="cart-items-list" class="flex-1 overflow-y-auto space-y-4"></div>
-        <div class="border-t pt-6 space-y-4">
+        
+        <div id="cart-items-list" class="flex-1 space-y-4 overflow-y-auto min-h-[150px]"></div>
+        
+        <div class="border-t pt-4 space-y-4">
             <div class="flex justify-between font-bold text-xl font-serif">
                 <span>Total:</span>
                 <span id="cart-total-price">$0</span>
             </div>
-            <button onclick="checkout()" class="w-full bg-[#5D4037] text-white py-4 font-bold uppercase text-xs tracking-widest hover:bg-[#3E2723] transition shadow-lg">Finalizar Compra por WhatsApp</button>
+
+            <div class="space-y-2">
+                <span class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block">Forma de Pago:</span>
+                <div class="grid grid-cols-1 gap-2">
+                    <label class="flex items-center gap-3 p-3 border border-[#5D4037] bg-[#F4F1E6]/30 cursor-pointer text-xs font-semibold" onclick="handlePaymentSelect('transferencia')">
+                        <input type="radio" name="payment-method" value="transferencia" checked class="accent-[#5D4037]">
+                        <span>🏛️ Transferencia Bancaria (15% OFF)</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 border border-gray-200 hover:border-[#5D4037] cursor-pointer text-xs font-semibold transition" onclick="handlePaymentSelect('mercadopago')">
+                        <input type="radio" name="payment-method" value="mercadopago" class="accent-[#5D4037]">
+                        <span>💳 Mercado Pago (Tarjetas / Cuotas)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="transfer-details-box" class="bg-[#F4F1E6]/50 border border-dashed border-[#5D4037] p-4 text-[11px] space-y-1 text-gray-700">
+                <p class="font-bold uppercase tracking-wider text-[#5D4037] mb-1">Datos de Transferencia:</p>
+                <p><strong>Banco:</strong> Banco Galicia</p>
+                <p><strong>Titular:</strong> Casa Serena Patagonia</p>
+                <p><strong>ALIAS:</strong> CASA.SERENA.PATA</p>
+                <p><strong>CBU:</strong> 0000000000000000000000</p>
+                <p class="italic text-gray-400 mt-2 text-[10px]">Al finalizar, te redirigiremos a WhatsApp para enviar el comprobante de pago.</p>
+            </div>
+
+            <button id="main-checkout-btn" onclick="executeCheckout()" class="w-full bg-[#5D4037] text-white py-4 font-bold uppercase text-xs tracking-widest hover:bg-[#3E2723] transition shadow-lg">Finalizar por WhatsApp</button>
         </div>
     </div>
 
@@ -242,13 +268,16 @@
                         <img src="${item.img}" class="w-16 h-16 object-cover rounded shadow-sm">
                         <div class="flex-1">
                             <h4 class="text-xs font-bold uppercase tracking-widest">${item.name}</h4>
-                            <p class="text-xs font-bold text-[#5D4037] mt-1">$${item.price.toLocaleString()}</p>
+                            <p class="text-xs font-bold text-[#5D4037] mt-1">$${item.price.toLocaleString('es-AR')}</p>
                         </div>
                         <button onclick="removeFromCart(${idx})" class="text-gray-300 hover:text-red-500 transition"><i class="fa fa-trash-alt text-xs"></i></button>
                     </div>
                 `).join('');
-                totalDisplay.innerText = `$${cart.reduce((acc, curr) => acc + curr.price, 0).toLocaleString()}`;
+                totalDisplay.innerText = `$${cart.reduce((acc, curr) => acc + curr.price, 0).toLocaleString('es-AR')}`;
             }
+
+            const selectedMethod = document.querySelector('input[name="payment-method"]:checked')?.value || 'transferencia';
+            handlePaymentSelect(selectedMethod);
         }
 
         function addSillonArg() {
@@ -264,21 +293,66 @@
             cart.splice(idx, 1); localStorage.setItem('cs_cart', JSON.stringify(cart)); renderCart();
         }
 
-        function checkout() {
+        function handlePaymentSelect(method) {
+            const transferBox = document.getElementById('transfer-details-box');
+            const mainCheckoutBtn = document.getElementById('main-checkout-btn');
+
+            document.querySelectorAll('input[name="payment-method"]').forEach(input => {
+                input.closest('label').className = "flex items-center gap-3 p-3 border border-gray-200 hover:border-[#5D4037] cursor-pointer text-xs font-semibold transition";
+            });
+            
+            const activeInput = document.querySelector(`input[name="payment-method"][value="${method}"]`);
+            if(activeInput) {
+                activeInput.closest('label').className = "flex items-center gap-3 p-3 border border-[#5D4037] bg-[#F4F1E6]/30 cursor-pointer text-xs font-semibold";
+            }
+
+            if (method === 'transferencia') {
+                transferBox.classList.remove('hidden');
+                mainCheckoutBtn.innerText = "Finalizar por WhatsApp";
+                mainCheckoutBtn.className = "w-full bg-[#5D4037] text-white py-4 font-bold uppercase text-xs tracking-widest hover:bg-[#3E2723] transition shadow-lg";
+            } else {
+                transferBox.classList.add('hidden');
+                mainCheckoutBtn.innerText = "Pagar con Mercado Pago";
+                mainCheckoutBtn.className = "w-full bg-[#009EE3] text-white py-4 font-bold uppercase text-xs tracking-widest hover:bg-[#0086C3] transition shadow-lg";
+            }
+        }
+
+        function executeCheckout() {
             const cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
             if(!cart.length) return alert('El carrito está vacío');
-            let msg = "Hola Casa Serena! Me interesa encargar:\n";
-            cart.forEach(item => msg += `- ${item.name} ($${item.price.toLocaleString()})\n`);
-            window.open(`https://wa.me/5491170669275?text=${encodeURIComponent(msg)}`, '_blank');
+
+            const method = document.querySelector('input[name="payment-method"]:checked').value;
+            const total = cart.reduce((acc, curr) => acc + curr.price, 0);
+
+            if (method === 'transferencia') {
+                const totalDescuento = total * 0.85;
+                let msg = "✨ *NUEVO PEDIDO - CASA SERENA (TRANSFERENCIA)* ✨\n\n";
+                msg += "Hola! Acabo de ver la web y quiero transferir por estos productos:\n";
+                cart.forEach(item => { msg += `• ${item.name} ($${item.price.toLocaleString('es-AR')})\n`; });
+                msg += `\n💵 *Subtotal:* $${total.toLocaleString('es-AR')}\n`;
+                msg += `🔥 *Total con 15% OFF:* $${totalDescuento.toLocaleString('es-AR')}\n\n`;
+                msg += "🏛️ _Ya agendé los datos de la cuenta. ¡En breve les adjunto el comprobante de la transferencia por acá!_";
+                
+                window.open(`https://wa.me/5491170669275?text=${encodeURIComponent(msg)}`, '_blank');
+            } 
+            else if (method === 'mercadopago') {
+                const titlePreference = cart.map(i => i.name).join(', ');
+                const encodedTitle = encodeURIComponent(`Pedido Casa Serena: ${titlePreference}`);
+                const checkoutUrl = `https://link.mercadopago.com.ar/create?title=${encodedTitle}&price=${total}&currency=ARS`;
+                
+                window.open(checkoutUrl, '_blank');
+            }
         }
 
         let currentSlide = 0;
         const slideContainer = document.getElementById('carouselSlide');
         
         function updateCarousel() {
+            if(!slideContainer) return;
             slideContainer.style.transform = `translateX(-${currentSlide * 33.3333}%)`;
             for (let i = 0; i < 3; i++) {
                 const dot = document.getElementById(`dot${i}`);
+                if(!dot) continue;
                 if (i === currentSlide) {
                     dot.classList.remove('bg-white/50');
                     dot.classList.add('bg-white', 'w-4');
