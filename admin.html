@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Control | Casa Serena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
+        body { font-family: 'Raleway', sans-serif; background: #f4f7f6; }
+        .sidebar { background: #5D4037; color: white; }
+    </style>
+</head>
+<body class="flex h-screen">
+
+    <div class="w-64 sidebar p-8 flex flex-col justify-between">
+        <div>
+            <img src="imagenes/logo.png" class="h-12 mb-10 brightness-200">
+            <nav class="space-y-6 text-sm uppercase tracking-widest font-bold">
+                <a href="#" class="block text-white">📦 Productos</a>
+                <a href="#" class="block text-gray-400 hover:text-white">💰 Ventas</a>
+                <a href="#" class="block text-gray-400 hover:text-white">👥 Clientes</a>
+            </nav>
+        </div>
+        <button class="text-xs text-red-300 text-left uppercase font-bold">Cerrar Sesión</button>
+    </div>
+
+    <main class="flex-1 p-12 overflow-y-auto">
+        <div class="flex justify-between items-center mb-12">
+            <h1 class="text-3xl font-bold text-gray-800">Gestión de Catálogo</h1>
+            <button onclick="openForm()" class="bg-[#5D4037] text-white px-6 py-3 rounded-sm text-xs font-bold uppercase tracking-widest">+ Nuevo Artículo</button>
+        </div>
+
+        <div class="bg-white shadow-xl rounded-sm overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 border-b">
+                    <tr>
+                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400">Producto</th>
+                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400">Categoría</th>
+                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400">Precio</th>
+                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400">Stock</th>
+                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-product-list">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="modal-form" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-2xl p-10 rounded-sm shadow-2xl">
+            <h2 class="text-2xl font-bold mb-8">Subir Nuevo Producto</h2>
+            <form id="product-form" class="grid grid-cols-2 gap-6">
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-bold uppercase mb-2">Nombre del Producto</label>
+                    <input type="text" id="p-name" class="w-full border p-3 outline-none focus:border-[#5D4037]" placeholder="Ej: Sillón Calma XL">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase mb-2">Precio ($)</label>
+                    <input type="number" id="p-price" class="w-full border p-3 outline-none" placeholder="420000">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase mb-2">Categoría</label>
+                    <select id="p-cat" class="w-full border p-3 outline-none">
+                        <option value="sillones">Sillones</option>
+                        <option value="puffs">Puffs & Botineros</option>
+                        <option value="deco">Complementos</option>
+                    </select>
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-bold uppercase mb-2">URL de la Imagen</label>
+                    <input type="text" id="p-img" class="w-full border p-3 outline-none" placeholder="https://...">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-bold uppercase mb-2">Descripción y Medidas</label>
+                    <textarea id="p-desc" class="w-full border p-3 outline-none h-32"></textarea>
+                </div>
+                <div class="col-span-2 flex gap-4 pt-4">
+                    <button type="submit" class="flex-1 bg-[#5D4037] text-white py-4 font-bold uppercase text-[10px]">Guardar en Catálogo</button>
+                    <button type="button" onclick="closeForm()" class="px-8 border py-4 font-bold uppercase text-[10px]">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openForm() { document.getElementById('modal-form').classList.remove('hidden'); }
+        function closeForm() { document.getElementById('modal-form').classList.add('hidden'); }
+        
+        // Aquí iría la conexión a la base de datos (Firebase)
+        document.getElementById('product-form').onsubmit = (e) => {
+            e.preventDefault();
+            alert('¡Producto guardado en la base de datos! (Simulado)');
+            closeForm();
+        }
+    </script>
+</body>
+</html>

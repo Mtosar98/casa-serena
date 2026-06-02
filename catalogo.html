@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo Oficial | Casa Serena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&family=Playfair+Display:ital,wght=0,400;1,400&display=swap');
+        body { font-family: 'Raleway', sans-serif; background-color: #FDFBF9; color: #4A332C; overflow-x: hidden; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        
+        .header-main { background-color: #F4F1E6; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #e5e7eb; }
+        .logo-main { height: 140px; transition: all 0.3s ease; } 
+        
+        /* Filtros Horizontales Estilo Ganga */
+        .filter-badge { border: 1px solid #e5e7eb; padding: 10px 24px; font-size: 11px; text-transform: uppercase; tracking: 0.15em; font-weight: 600; transition: all 0.3s ease; }
+        .filter-badge.active { background-color: #5D4037; color: white; border-color: #5D4037; }
+        .filter-badge:hover:not(.active) { background-color: #F4F1E6; color: #5D4037; }
+
+        /* Estilos Carrito Lateral */
+        #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
+        .cart-open #cart-sidebar { transform: translateX(0); }
+        .cart-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1500; backdrop-filter: blur(2px); }
+        .cart-open .cart-overlay { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="cart-overlay" onclick="toggleCart()"></div>
+
+    <div class="bg-[#5D4037] text-white text-[10px] uppercase tracking-[0.3em] py-2.5 text-center font-bold">
+        🔥 15% OFF TRANSFERENCIA • 3 Y 6 CUOTAS SIN INTERÉS • ENVÍOS A TODO EL PAÍS
+    </div>
+
+    <header class="header-main">
+        <div class="container mx-auto px-6 py-2 flex justify-between items-center">
+            <nav class="hidden lg:flex gap-10 text-[11px] uppercase font-bold text-gray-600 tracking-widest">
+                <a href="index.html" class="hover:text-[#5D4037] transition">Inicio</a>
+                <a href="catalogo.html" class="text-[#5D4037]">Catálogo</a>
+                <a href="index.html#novedad" class="hover:text-[#5D4037] transition">Línea Selección 🇦🇷</a>
+                <a href="index.html#nosotros" class="hover:text-[#5D4037] transition">Nuestra Historia</a>
+                <a href="contacto.html" class="hover:text-[#5D4037] transition font-extrabold text-[#D4A373]">Showroom / Contacto</a>
+            </nav>
+            
+            <a href="index.html">
+                <img src="imagenes/logo.png" alt="Casa Serena" class="logo-main">
+            </a>
+
+            <div class="flex items-center gap-6">
+                <a href="https://instagram.com/casa.serena25" target="_blank" class="text-xl text-gray-500 hover:text-[#5D4037] transition hidden sm:block">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <button onclick="toggleCart()" class="relative hover:scale-105 transition">
+                    <i class="fa-solid fa-cart-shopping text-2xl text-[#5D4037]"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-[#D4A373] text-white text-[10px] rounded-full px-2 py-0.5 font-bold shadow-md">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[2000] p-8 shadow-2xl flex flex-col">
+        <div class="flex justify-between items-center mb-8 border-b pb-4">
+            <h3 class="text-2xl font-serif italic">Tu Pedido</h3>
+            <button onclick="toggleCart()" class="text-3xl text-gray-300 hover:text-black">&times;</button>
+        </div>
+        <div id="cart-items-list" class="flex-1 overflow-y-auto space-y-4"></div>
+        <div class="border-t pt-6 space-y-4">
+            <div class="flex justify-between font-bold text-xl font-serif">
+                <span>Total:</span>
+                <span id="cart-total-price">$0</span>
+            </div>
+            <button onclick="checkout()" class="w-full bg-[#5D4037] text-white py-4 font-bold uppercase text-xs tracking-widest hover:bg-[#3E2723] transition shadow-lg">Finalizar por WhatsApp</button>
+        </div>
+    </div>
+
+    <div class="text-center pt-16 pb-8 space-y-2">
+        <h1 class="text-4xl font-serif italic text-[#5D4037]">Nuestros Productos</h1>
+        <p class="text-xs text-gray-400 uppercase tracking-widest">Diseño contemporáneo y confort absoluto</p>
+    </div>
+
+    <div class="container mx-auto px-6 mb-16 flex flex-wrap justify-center gap-3">
+        <button onclick="filterProducts('todos')" id="f-todos" class="filter-badge active">Ver Todo</button>
+        <button onclick="filterProducts('sillones')" id="f-sillones" class="filter-badge">Sillones</button>
+        <button onclick="filterProducts('puffs')" id="f-puffs" class="filter-badge">Puffs & Botineros</button>
+        <button onclick="filterProducts('deco')" id="f-deco" class="filter-badge">Complementos Deco</button>
+    </div>
+
+    <main class="container mx-auto px-6 pb-24">
+        <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
+            </div>
+    </main>
+
+    <div id="product-modal" class="fixed inset-0 bg-black/60 z-[3000] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-4xl h-[80vh] overflow-y-auto relative flex flex-col md:flex-row shadow-2xl">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-3xl text-gray-300 hover:text-black z-10">&times;</button>
+            <div class="w-full md:w-1/2 h-64 md:h-full bg-gray-50">
+                <img id="modal-img" src="" class="w-full h-full object-cover">
+            </div>
+            <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center space-y-6">
+                <div>
+                    <span id="modal-cat" class="text-[9px] uppercase tracking-[0.4em] text-gray-400 font-bold">Línea</span>
+                    <h2 id="modal-name" class="text-3xl font-serif italic text-[#5D4037]">Nombre</h2>
+                    <p id="modal-price" class="text-2xl font-bold text-[#5D4037] mt-2">$0</p>
+                </div>
+
+                <div id="color-selection-area" class="space-y-2 border-t pt-4">
+                    <span class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block">Color del Tapizado:</span>
+                    <div class="flex gap-3" id="modal-colors-container"></div>
+                </div>
+
+                <div class="space-y-2 text-xs text-gray-500 italic">
+                    <p><strong>Dimensiones:</strong> <span id="modal-size">Medidas</span></p>
+                    <p><strong>Estructura:</strong> <span id="modal-desc">Detalle</span></p>
+                </div>
+                <button id="modal-add-btn" class="w-full bg-[#5D4037] text-white py-4 font-bold uppercase tracking-widest text-xs hover:bg-[#3E2723] transition">Agregar al Pedido</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-[#F4F1E6] py-12 text-center border-t">
+        <p class="text-[10px] text-gray-400 uppercase tracking-[0.4em] font-bold italic">© 2026 - Casa Serena Patagonia</p>
+    </footer>
+
+    <script>
+        let currentSelectedColorProduct = null;
+        let products = []; // Se rellenará dinámicamente con Google Sheets
+        let categoriaActiva = 'todos';
+
+        // Configuración de tu Google Sheets pública
+        const SHEET_ID = '1TpYE512TcmtKdTlEhuzesPbN0IFnAmeE0xOoDwuZJ7I';
+        const  sheetUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?output=csv`;
+
+        // Función principal para descargar e interpretar la lista de productos
+        async function fetchProductsFromSheets() {
+            try {
+                const response = await fetch(sheetUrl);
+                const csvText = await response.text();
+                
+                const lines = csvText.split('\n');
+                const loadedProducts = [];
+
+                // Empezamos desde la línea 1 (saltando la fila de títulos de la planilla)
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+
+                    // Separador robusto por comas respetando contenidos con comillas internos
+                    const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    
+                    const idRaw = columns[0]?.replace(/"/g, '') || i;
+                    const nameRaw = columns[1]?.replace(/"/g, '') || "Producto Sin Nombre";
+                    const priceRaw = parseFloat(columns[2]?.replace(/"/g, '')) || 0;
+                    const descRaw = columns[3]?.replace(/"/g, '') || "";
+                    const imgRaw = columns[4]?.replace(/"/g, '').trim() || "imagenes/logo.png";
+
+                    // Mapeo inteligente: para mantener tu lógica de "Colores", "Hover Dual" y "Medidas", 
+                    // creamos variantes por defecto basadas en lo que cargues en tu Excel.
+                    loadedProducts.push({
+                        id: parseInt(idRaw),
+                        name: nameRaw,
+                        price: priceRaw,
+                        cat: nameRaw.toLowerCase().includes("puff") || nameRaw.toLowerCase().includes("botinero") ? "puffs" : 
+                             nameRaw.toLowerCase().includes("lámpara") || nameRaw.toLowerCase().includes("deco") ? "deco" : "sillones",
+                        size: "Medidas estándar a pedido",
+                        desc: descRaw,
+                        imgDefault: imgRaw,
+                        imgHover: imgRaw, // Inicialmente la misma, expandible si agregas columnas
+                        hasColors: false, // Por defecto falso, para gestionarlo simple por Excel
+                        colors: []
+                    });
+                }
+
+                products = loadedProducts;
+                filterProducts(categoriaActiva); // Renderiza en base a la pestaña seleccionada
+            } catch (error) {
+                console.error("Error cargando base de datos de Google Sheets:", error);
+            }
+        }
+
+        function filterProducts(category) {
+            categoriaActiva = category;
+            document.querySelectorAll('.filter-badge').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById('f-' + category);
+            if (activeBtn) activeBtn.classList.add('active');
+            
+            const grid = document.getElementById('catalog-grid');
+            if (!grid) return;
+
+            const filtered = category === 'todos' ? products : products.filter(p => p.cat === category);
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 italic text-gray-400">No hay productos en esta categoría por el momento.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => `
+                <div class="group cursor-pointer bg-white border border-gray-100 p-2 shadow-xs transition hover:shadow-md" onclick="openModal(${p.id})">
+                    <div class="relative overflow-hidden h-72 w-full bg-gray-50 mb-4 rounded-xs">
+                        <img src="${p.imgDefault}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-100 group-hover:opacity-0">
+                        <img src="${p.imgHover || p.imgDefault}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100">
+                    </div>
+                    
+                    <div class="p-2 space-y-1">
+                        <h4 class="text-[9px] uppercase tracking-[0.2em] text-gray-400 font-bold">${p.cat}</h4>
+                        <h3 class="text-sm font-serif italic text-[#5D4037] truncate">${p.name}</h3>
+                        <div class="flex justify-between items-center pt-1">
+                            <p class="text-sm font-bold text-gray-800">$${p.price.toLocaleString('es-AR')}</p>
+                            <span class="text-[9px] uppercase font-bold text-[#D4A373] tracking-widest group-hover:underline">Ver más</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openModal(id) {
+            const p = products.find(x => x.id === id);
+            if (!p) return;
+
+            document.getElementById('modal-name').innerText = p.name;
+            document.getElementById('modal-cat').innerText = p.cat.toUpperCase();
+            document.getElementById('modal-price').innerText = '$' + p.price.toLocaleString('es-AR');
+            document.getElementById('modal-size').innerText = p.size;
+            document.getElementById('modal-desc').innerText = p.desc;
+            
+            const colorsContainer = document.getElementById('modal-colors-container');
+            const colorsArea = document.getElementById('color-selection-area');
+
+            if(p.hasColors && p.colors.length > 0) {
+                colorsArea.classList.remove('hidden');
+                selectVariant(p, 0);
+                colorsContainer.innerHTML = p.colors.map((c, idx) => `
+                    <button onclick="selectVariant(products.find(x=>x.id===${p.id}), ${idx})" class="w-8 h-8 rounded-full border border-gray-300 shadow-xs" style="background-color: ${c.hex};" title="${c.name}"></button>
+                `).join('');
+            } else {
+                colorsArea.classList.add('hidden');
+                document.getElementById('modal-img').src = p.imgDefault;
+                currentSelectedColorProduct = { name: p.name, price: p.price, img: p.imgDefault };
+            }
+            document.getElementById('modal-add-btn').onclick = () => { addToCart(currentSelectedColorProduct); closeModal(); };
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function selectVariant(product, index) {
+            const variant = product.colors[index];
+            document.getElementById('modal-img').src = variant.img;
+            document.getElementById('modal-name').innerText = `${product.name} (${variant.name})`;
+            currentSelectedColorProduct = { name: `${product.name} (${variant.name})`, price: product.price, img: variant.img };
+        }
+
+        function closeModal() { document.getElementById('product-modal').classList.add('hidden'); }
+        
+        function toggleCart() { document.body.classList.toggle('cart-open'); renderCart(); }
+        
+        function renderCart() {
+            const cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
+            const container = document.getElementById('cart-items-list');
+            const totalDisplay = document.getElementById('cart-total-price');
+            document.getElementById('cart-count').innerText = cart.length;
+
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-16 italic text-gray-400 text-sm">Tu carrito está vacío.</div>`;
+                totalDisplay.innerText = "$0";
+            } else {
+                container.innerHTML = cart.map((item, idx) => `
+                    <div class="flex gap-4 border-b border-gray-100 pb-4 items-center">
+                        <img src="${item.img}" class="w-16 h-16 object-cover rounded shadow-xs">
+                        <div class="flex-1">
+                            <h4 class="text-xs font-bold uppercase tracking-widest">${item.name}</h4>
+                            <p class="text-xs font-bold text-[#5D4037] mt-1">$${item.price.toLocaleString('es-AR')}</p>
+                        </div>
+                        <button onclick="removeFromCart(${idx})" class="text-gray-300 hover:text-red-500 transition"><i class="fa fa-trash-alt text-xs"></i></button>
+                    </div>
+                `).join('');
+                totalDisplay.innerText = `$${cart.reduce((acc, curr) => acc + curr.price, 0).toLocaleString('es-AR')}`;
+            }
+        }
+
+        function addToCart(item) {
+            let cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
+            cart.push(item); localStorage.setItem('cs_cart', JSON.stringify(cart));
+            renderCart(); toggleCart();
+        }
+
+        function removeFromCart(idx) {
+            let cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
+            cart.splice(idx, 1); localStorage.setItem('cs_cart', JSON.stringify(cart)); renderCart();
+        }
+
+        function checkout() {
+            const cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
+            if(!cart.length) return;
+            let msg = "Hola! Quiero encargar estos productos del catálogo:\n";
+            cart.forEach(item => msg += `- ${item.name} ($${item.price.toLocaleString('es-AR')})\n`);
+            window.open(`https://wa.me/5491170669275?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // Ejecución al iniciar la página
+        window.onload = async () => { 
+            await fetchProductsFromSheets(); 
+            renderCart(); 
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Showroom & Citas | Casa Serena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,400;1,400&family=Raleway:wght=300;400;600;700&display=swap');
+        body { font-family: 'Raleway', sans-serif; background-color: #FDFBF9; color: #4A332C; }
+        h1, h2, h3, h4, .font-serif { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body>
+
+    <header class="bg-[#F4F1E6] py-6 text-center border-b sticky top-0 z-50">
+        <a href="index.html" class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold uppercase tracking-widest hover:text-[#5D4037] transition">
+            <i class="fa fa-arrow-left mr-2"></i> Volver al Inicio
+        </a>
+        <img src="imagenes/logo.png" alt="Logo Casa Serena" class="h-16 mx-auto">
+    </header>
+
+    <main class="container mx-auto px-6 py-16 max-w-5xl">
+        <div class="text-center space-y-4 mb-16">
+            <span class="text-[10px] uppercase tracking-[0.5em] text-[#D4A373] font-bold block">Atención Exclusiva</span>
+            <h1 class="text-4xl md:text-5xl font-serif italic text-[#5D4037]">Contacto & Agenda Showroom</h1>
+            <p class="text-gray-500 max-w-2xl mx-auto text-sm italic font-light leading-relaxed">
+                Escribinos tu consulta directa por mail o reservá tu espacio de 30 minutos exclusivos en nuestro showroom de Palermo Chico, CABA.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            
+            <div class="lg:col-span-7 bg-white p-8 rounded-lg shadow-xl border border-gray-100 space-y-6">
+                <h3 class="text-xl font-serif italic text-[#5D4037] border-b pb-2">Dejanos tu Consulta</h3>
+                
+                <form action="https://formspree.io/f/xgoqaqql" method="POST" class="space-y-4 text-xs font-bold uppercase tracking-widest text-gray-500">
+                    <div>
+                        <label class="block mb-1.5">Nombre Completo</label>
+                        <input type="text" name="name" required class="w-full bg-[#FDFBF9] border border-gray-200 p-3 text-sm font-normal normal-case text-gray-800 focus:outline-[#5D4037]">
+                    </div>
+                    
+                    <div>
+                        <label class="block mb-1.5">Tu Correo Electrónico</label>
+                        <input type="email" name="email" required class="w-full bg-[#FDFBF9] border border-gray-200 p-3 text-sm font-normal normal-case text-gray-800 focus:outline-[#5D4037]">
+                    </div>
+                    
+                    <div>
+                        <label class="block mb-1.5">Mensaje o Producto de Interés</label>
+                        <textarea name="message" rows="5" required class="w-full bg-[#FDFBF9] border border-gray-200 p-3 text-sm font-normal normal-case text-gray-800 focus:outline-[#5D4037]" placeholder="Hola Casa Serena, quería consultar por..."></textarea>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <button type="submit" class="w-full bg-[#5D4037] text-white py-4 font-bold uppercase text-xs tracking-widest hover:bg-[#3E2723] transition shadow-md rounded-sm">
+                            Enviar Mensaje al Mail
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="lg:col-span-5 space-y-6">
+                
+                <div class="bg-white p-8 rounded-lg shadow-xl border border-gray-100 text-center space-y-4">
+                    <div class="w-12 h-12 bg-[#5D4037]/5 text-[#5D4037] rounded-full flex items-center justify-center mx-auto">
+                        <i class="fa fa-calendar-check text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold uppercase tracking-widest text-[#5D4037]">Reserva de Showroom</h4>
+                        <p class="text-[10px] text-gray-400 italic">Citas coordinadas online</p>
+                    </div>
+                    <p class="text-xs text-gray-400 leading-relaxed italic px-2">
+                        Si preferís saltearte el mail y agendar tu visita presencial directo en el calendario, dale clic abajo.
+                    </p>
+                    <a href="https://calendly.com/contacto-casa-serena/30min" target="_blank" class="block w-full border border-[#5D4037] text-[#5D4037] text-center py-3 font-bold uppercase text-[11px] tracking-widest hover:bg-[#5D4037] hover:text-white transition rounded-sm">
+                        Abrir Agenda de Citas
+                    </a>
+                </div>
+
+                <div class="bg-[#F4F1E6]/40 p-6 rounded-lg border border-gray-100 space-y-4 text-xs italic text-gray-500">
+                    <div class="flex items-start gap-3">
+                        <i class="fa fa-map-marker-alt text-[#D4A373] text-sm mt-0.5"></i>
+                        <p>Palermo Chico, Ciudad Autónoma de Buenos Aires.</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <i class="fa fa-clock text-[#D4A373] text-sm mt-0.5"></i>
+                        <p>Lunes a Sábados de 11:00 a 19:00 hs.</p>
+                    </div>
+                    <div class="flex items-start gap-3 border-t pt-4 border-gray-200/60 font-bold normal-case not-italic text-[#5D4037]">
+                        <i class="fab fa-whatsapp text-lg text-[#25d366]"></i>
+                        <a href="https://wa.me/5491170669275" target="_blank" class="hover:underline">WhatsApp Directo: 11 7066-9275</a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-[#F4F1E6] py-12 text-center border-t mt-20">
+        <p class="text-[10px] text-gray-400 uppercase tracking-[0.4em] font-bold italic">© 2026 - Casa Serena Patagonia</p>
+    </footer>
+
+</body>
+</html>

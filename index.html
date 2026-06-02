@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casa Serena | Premium Home Decor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,400;0,700;1,400&family=Raleway:wght=300;400;500;600;700&display=swap');
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Raleway', sans-serif; background-color: #FDFBF9; color: #4A332C; overflow-x: hidden; }
+        h1, h2, h3, h4, .font-serif { font-family: 'Playfair Display', serif; }
+        
+        .header-main { background-color: #F4F1E6; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #e5e7eb; }
+        .logo-main { height: 140px; transition: all 0.3s ease; } 
+        
+        #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
+        .cart-open #cart-sidebar { transform: translateX(0); }
+        .cart-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1500; backdrop-filter: blur(2px); }
+        .cart-open .cart-overlay { display: block; }
+        .whatsapp-float { position: fixed; width: 60px; height: 60px; bottom: 40px; right: 40px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 30px; box-shadow: 2px 2px 10px rgba(0,0,0,0.2); z-index: 100; }
+        
+        .carousel-container { position: relative; overflow: hidden; width: 100%; height: 620px; }
+        .carousel-slide { display: flex; width: 300%; height: 100%; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .carousel-img { width: 33.3333%; height: 100%; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+    <a href="https://wa.me/5491170669275" class="whatsapp-float flex items-center justify-center" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <div class="cart-overlay" onclick="toggleCart()"></div>
+
+    <div class="bg-[#5D4037] text-white text-[10px] uppercase tracking-[0.3em] py-2.5 text-center font-bold">
+        🔥 15% OFF TRANSFERENCIA • 3 Y 6 CUOTAS SIN INTERÉS • ENVÍOS A TODO EL PAÍS
+    </div>
+
+    <header class="header-main">
+        <div class="container mx-auto px-6 py-2 flex justify-between items-center">
+            <nav class="hidden lg:flex gap-10 text-[11px] uppercase font-bold text-gray-600 tracking-widest">
+                <a href="index.html" class="text-[#5D4037]">Inicio</a>
+                <a href="catalogo.html" class="hover:text-[#5D4037] transition">Catálogo</a>
+                <a href="#novedad" class="hover:text-[#5D4037] transition">Línea Selección 🇦🇷</a>
+                <a href="#nosotros" class="hover:text-[#5D4037] transition">Nuestra Historia</a>
+                <a href="contacto.html" class="hover:text-[#5D4037] transition font-extrabold text-[#D4A373]">Showroom / Contacto</a>
+            </nav>
+            
+            <a href="index.html">
+                <img src="imagenes/logo.png" alt="Casa Serena" class="logo-main">
+            </a>
+
+            <div class="flex items-center gap-6">
+                <a href="https://instagram.com/casa.serena25" target="_blank" class="text-xl text-gray-500 hover:text-[#5D4037] transition hidden sm:block">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <button onclick="toggleCart()" class="relative hover:scale-105 transition">
+                    <i class="fa-solid fa-cart-shopping text-2xl text-[#5D4037]"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-[#D4A373] text-white text-[10px] rounded-full px-2 py-0.5 font-bold shadow-md">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[2000] p-8 shadow-2xl flex flex-col">
+        <div class="flex justify-between items-center mb-8 border-b pb-4">
+            <h3 class="text-2xl font-serif italic">Tu Pedido</h3>
+            <button onclick="toggleCart()" class="text-3xl text-gray-300 hover:text-black">&times;</button>
+        </div>
+        <div id="cart-items-list" class="flex-1 overflow-y-auto space-y-4"></div>
+        <div class="border-t pt-6 space-y-4">
+            <div class="flex justify-between font-bold text-xl font-serif">
+                <span>Total:</span>
+                <span id="cart-total-price">$0</span>
+            </div>
+            <button onclick="checkout()" class="w-full bg-[#5D4037] text-white py-4 font-bold uppercase text-xs tracking-widest hover:bg-[#3E2723] transition shadow-lg">Finalizar Compra por WhatsApp</button>
+        </div>
+    </div>
+
+    <section class="relative h-[85vh] flex items-center justify-center">
+        <img src="imagenes/portada.jpg" class="absolute inset-0 w-full h-full object-cover brightness-90" alt="Living Patagonia">
+        <div class="relative text-center text-white px-6">
+            <h1 class="text-6xl md:text-8xl italic mb-6 drop-shadow-2xl">La Calma es un Lujo.</h1>
+            <p class="text-lg md:text-2xl font-light tracking-[0.4em] mb-12 uppercase">Mobiliario de Autor & Diseño Patagónico</p>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                <a href="catalogo.html" class="bg-white text-[#5D4037] px-12 py-5 text-[11px] font-bold uppercase tracking-widest shadow-xl hover:bg-[#F4F1E6] transition-all">Ver Catálogo Completo</a>
+                <a href="#novedad" class="bg-[#74ACDF] text-white px-12 py-5 text-[11px] font-bold uppercase tracking-widest shadow-xl hover:bg-[#528cb5] transition-all">Sillón Argentina 🇦🇷</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 bg-white py-12 px-6 gap-8 text-center border-b">
+        <div class="space-y-1">
+            <i class="fa fa-truck text-xl text-[#D4A373]"></i>
+            <h5 class="font-bold uppercase text-[11px] tracking-widest">Envíos Asegurados</h5>
+            <p class="text-[11px] text-gray-400 italic">Despachos Premium a todo el país</p>
+        </div>
+        <div class="space-y-1 border-y md:border-y-0 md:border-x border-gray-100 py-4 md:py-0">
+            <i class="fa fa-credit-card text-xl text-[#D4A373]"></i>
+            <h5 class="font-bold uppercase text-[11px] tracking-widest">Financiación Flexible</h5>
+            <p class="text-[11px] text-gray-400 italic">3 y 6 Cuotas Sin Interés disponibles</p>
+        </div>
+        <div class="space-y-1">
+            <i class="fa fa-award text-xl text-[#D4A373]"></i>
+            <h5 class="font-bold uppercase text-[11px] tracking-widest">Garantía de Fábrica</h5>
+            <p class="text-[11px] text-gray-400 italic">Estructuras en maderas macizas seleccionadas</p>
+        </div>
+    </div>
+
+    <section id="novedad" class="py-24 bg-[#F4F1E6]/40">
+        <div class="container mx-auto px-6 max-w-6xl">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-7 relative rounded-lg shadow-xl overflow-hidden bg-white p-3 border border-gray-100">
+                    <div class="carousel-container rounded-sm">
+                        <div class="carousel-slide" id="carouselSlide">
+                            <img src="imagenes/sillon-arg-1.jpg" class="carousel-img" alt="Sillón Argentina - Confort">
+                            <img src="imagenes/sillon-arg-2.jpg" class="carousel-img" alt="Sillón Argentina - Detalles">
+                            <img src="imagenes/sillon-arg-3.jpg" class="carousel-img" alt="Sillón Argentina - Ambiente">
+                        </div>
+                    </div>
+                    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                        <div class="w-2 h-2 rounded-full bg-white transition-all duration-300" id="dot0"></div>
+                        <div class="w-2 h-2 rounded-full bg-white/50 transition-all duration-300" id="dot1"></div>
+                        <div class="w-2 h-2 rounded-full bg-white/50 transition-all duration-300" id="dot2"></div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 space-y-6">
+                    <span class="text-[10px] uppercase tracking-[0.5em] text-[#74ACDF] font-bold block">Edición Especial Limitada</span>
+                    <h2 class="text-4xl font-serif italic text-[#5D4037] leading-tight">Sillón Argentina:<br>Viví el Mundial en casa.</h2>
+                    <p class="text-gray-500 text-sm leading-relaxed italic font-light">
+                        Diseñado exclusivamente para garantizar el máximo confort durante los partidos de la Selección. Confeccionado con textiles premium de alta resistencia con detalles sutiles inspirados en nuestros colores nacionales, estructura reforzada de madera de alerce y placas soft hiper-mullidas. Un punto de encuentro familiar.
+                    </p>
+                    <div class="pt-4">
+                        <button onclick="addSillonArg()" class="bg-[#5D4037] text-white px-12 py-4 font-bold uppercase text-xs tracking-widest hover:bg-[#3E2723] transition shadow-lg w-full">
+                            Reservar Ahora • $450.000
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="nosotros" class="py-24 bg-white">
+        <div class="container mx-auto px-6 max-w-5xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div class="space-y-6 order-2 md:order-1">
+                    <span class="text-[10px] uppercase tracking-[0.5em] text-[#D4A373] font-bold block">Mobiliario de autor</span>
+                    <h2 class="text-4xl font-serif italic text-[#5D4037] leading-tight">Maderas con alma,<br>procesos con calma.</h2>
+                    <p class="text-gray-500 text-sm leading-relaxed italic font-light">
+                        En Casa Serena creemos que el hogar debe ser un santuario de paz. Desde hace más de una década, nos dedicamos a diseñar y fabricar piezas de mobiliario exclusivas que fusionan la calidez de la madera nativa patagónica con líneas contemporáneas de lujo y un confort inigualable.
+                    </p>
+                    <p class="text-gray-500 text-sm leading-relaxed italic font-light">
+                        No producimos en masa; cada sillón, puff y mesa de centro es trabajado de forma artesanal por maestros tapiceros y carpinteros, utilizando linos importados antimanchas y terminaciones naturales que respetan la identidad de la materia prima. Hacemos muebles pensados para durar generaciones.
+                    </p>
+                </div>
+                <div class="relative order-1 md:order-2">
+                    <div class="absolute -inset-4 bg-[#F4F1E6] rounded-sm transform translate-x-2 translate-y-2 -z-0"></div>
+                    <img src="imagenes/taller.jpg" class="rounded shadow-xl relative z-10 filter brightness-95 object-cover w-full h-[450px]" alt="Taller de Carpintería Patagónica Casa Serena">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-[#F4F1E6]/30 border-t">
+        <div class="container mx-auto px-6 text-center space-y-4 max-w-5xl">
+            <i class="fab fa-instagram text-3xl text-[#D4A373]"></i>
+            <span class="text-[10px] uppercase tracking-[0.4em] text-gray-400 font-bold block">Comunidad Casa Serena</span>
+            <h2 class="text-3xl font-serif italic text-[#5D4037]">Inspiración para tus ambientes</h2>
+            <p class="text-gray-500 text-xs italic font-light max-w-md mx-auto">Seguinos para ver los procesos de fabricación diarios, entregas a clientes y adelantos de temporada.</p>
+            
+            <div class="pt-4 mb-8">
+                <a href="https://instagram.com/casa.serena25" target="_blank" class="inline-block border border-[#5D4037] text-[#5D4037] px-8 py-3 text-[11px] font-bold uppercase tracking-widest hover:bg-[#5D4037] hover:text-white transition">
+                    @casa.serena25
+                </a>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+                <a href="https://www.instagram.com/reel/DU8uGkpEQy9/?igsh=MWk2ODh1NzV0ZG10Yg==" target="_blank" class="aspect-square bg-gray-100 overflow-hidden relative group block shadow-md border border-gray-100">
+                    <img src="imagenes/sillon-beige.jpg" class="w-full h-full object-cover grayscale-[15%] group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col items-center justify-center text-white space-y-2">
+                        <div class="w-10 h-10 border-2 border-white rounded-full flex items-center justify-center bg-white/20"><i class="fa fa-play ml-0.5 text-sm"></i></div>
+                        <span class="text-[10px] uppercase font-bold tracking-widest">Reproducir Reel</span>
+                    </div>
+                </a>
+                <a href="https://www.instagram.com/reel/DYhvnaCsBu-/?igsh=MWo0MmY2MHZ4cDF3OA==" target="_blank" class="aspect-square bg-gray-100 overflow-hidden relative group block shadow-md border border-gray-100">
+                    <img src="imagenes/botinero-arena.jpg" class="w-full h-full object-cover grayscale-[15%] group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col items-center justify-center text-white space-y-2">
+                        <div class="w-10 h-10 border-2 border-white rounded-full flex items-center justify-center bg-white/20"><i class="fa fa-play ml-0.5 text-sm"></i></div>
+                        <span class="text-[10px] uppercase font-bold tracking-widest">Reproducir Reel</span>
+                    </div>
+                </a>
+                <a href="https://www.instagram.com/reel/DRXERUvEQm6/?igsh=MTBsZDJ5MWhubzViMQ==" target="_blank" class="aspect-square bg-gray-100 overflow-hidden relative group block shadow-md border border-gray-100">
+                    <img src="imagenes/taller.jpg" class="w-full h-full object-cover grayscale-[15%] group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col items-center justify-center text-white space-y-2">
+                        <div class="w-10 h-10 border-2 border-white rounded-full flex items-center justify-center bg-white/20"><i class="fa fa-play ml-0.5 text-sm"></i></div>
+                        <span class="text-[10px] uppercase font-bold tracking-widest">Reproducir Reel</span>
+                    </div>
+                </a>
+                <a href="https://www.instagram.com/reel/DYaO4u7MeZv/?igsh=bDFubXV1ZHF5OTR4" target="_blank" class="aspect-square bg-gray-100 overflow-hidden relative group block shadow-md border border-gray-100">
+                    <img src="imagenes/sillon-arg-2.jpg" class="w-full h-full object-cover grayscale-[15%] group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col items-center justify-center text-white space-y-2">
+                        <div class="w-10 h-10 border-2 border-white rounded-full flex items-center justify-center bg-white/20"><i class="fa fa-play ml-0.5 text-sm"></i></div>
+                        <span class="text-[10px] uppercase font-bold tracking-widest">Reproducir Reel</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-[#F4F1E6] py-16 text-center border-t">
+        <img src="imagenes/logo.png" alt="Logo" class="h-14 mx-auto mb-6 opacity-40">
+        <div class="flex justify-center gap-6 text-xl text-gray-400 mb-6">
+            <a href="https://instagram.com/casa.serena25" target="_blank" class="hover:text-[#5D4037] transition"><i class="fab fa-instagram"></i></a>
+            <a href="https://wa.me/5491170669275" target="_blank" class="hover:text-[#25d366] transition"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        <div class="flex justify-center gap-8 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-8">
+            <a href="catalogo.html" class="hover:text-black transition">Catálogo</a>
+            <a href="#nosotros" class="hover:text-black transition">Nosotros</a>
+            <a href="contacto.html" class="hover:text-black transition">Showroom & Citas</a>
+        </div>
+        <p class="text-[10px] text-gray-400 uppercase tracking-[0.4em] font-bold italic">© 2026 - Casa Serena Patagonia</p>
+    </footer>
+
+    <script>
+        function toggleCart() { document.body.classList.toggle('cart-open'); renderCart(); }
+
+        function renderCart() {
+            const cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
+            const container = document.getElementById('cart-items-list');
+            const totalDisplay = document.getElementById('cart-total-price');
+            document.getElementById('cart-count').innerText = cart.length;
+
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-16 italic text-gray-400 text-sm">Tu carrito está vacío.</div>`;
+                totalDisplay.innerText = "$0";
+            } else {
+                container.innerHTML = cart.map((item, idx) => `
+                    <div class="flex gap-4 border-b border-gray-100 pb-4 items-center">
+                        <img src="${item.img}" class="w-16 h-16 object-cover rounded shadow-sm">
+                        <div class="flex-1">
+                            <h4 class="text-xs font-bold uppercase tracking-widest">${item.name}</h4>
+                            <p class="text-xs font-bold text-[#5D4037] mt-1">$${item.price.toLocaleString()}</p>
+                        </div>
+                        <button onclick="removeFromCart(${idx})" class="text-gray-300 hover:text-red-500 transition"><i class="fa fa-trash-alt text-xs"></i></button>
+                    </div>
+                `).join('');
+                totalDisplay.innerText = `$${cart.reduce((acc, curr) => acc + curr.price, 0).toLocaleString()}`;
+            }
+        }
+
+        function addSillonArg() {
+            let cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
+            cart.push({name: 'Sillón Argentina - Edición Mundial', price: 450000, img: 'imagenes/sillon-arg-1.jpg'});
+            localStorage.setItem('cs_cart', JSON.stringify(cart));
+            alert('¡El Sillón Argentina se ha sumado a tu pedido actual!');
+            renderCart(); toggleCart();
+        }
+
+        function removeFromCart(idx) {
+            let cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
+            cart.splice(idx, 1); localStorage.setItem('cs_cart', JSON.stringify(cart)); renderCart();
+        }
+
+        function checkout() {
+            const cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
+            if(!cart.length) return alert('El carrito está vacío');
+            let msg = "Hola Casa Serena! Me interesa encargar:\n";
+            cart.forEach(item => msg += `- ${item.name} ($${item.price.toLocaleString()})\n`);
+            window.open(`https://wa.me/5491170669275?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        let currentSlide = 0;
+        const slideContainer = document.getElementById('carouselSlide');
+        
+        function updateCarousel() {
+            slideContainer.style.transform = `translateX(-${currentSlide * 33.3333}%)`;
+            for (let i = 0; i < 3; i++) {
+                const dot = document.getElementById(`dot${i}`);
+                if (i === currentSlide) {
+                    dot.classList.remove('bg-white/50');
+                    dot.classList.add('bg-white', 'w-4');
+                } else {
+                    dot.classList.remove('bg-white', 'w-4');
+                    dot.classList.add('bg-white/50');
+                }
+            }
+        }
+
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % 3;
+            updateCarousel();
+        }, 2000);
+
+        window.onload = () => {
+            renderCart();
+            updateCarousel();
+        };
+    </script>
+</body>
+</html>
