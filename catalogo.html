@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&family=Playfair+Display:ital,wght=0,400;1,400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Raleway:wght=300;400;600;700&family=Playfair+Display:ital,wght=0,400;1,400&display=swap');
         body { font-family: 'Raleway', sans-serif; background-color: #FDFBF9; color: #4A332C; overflow-x: hidden; }
         .font-serif { font-family: 'Playfair Display', serif; }
         
@@ -125,33 +125,31 @@
 
     <script>
         let currentSelectedColorProduct = null;
-        let products = []; // Se rellenará dinámicamente con Google Sheets
+        let products = []; 
         let categoriaActiva = 'todos';
 
-        // Configuración de tu Google Sheets pública (Usamos tu ID directo en formato CSV limpio)
-        const SHEET_ID = '1TpYE512TcmtKdTlEhuzesPbN0IFnAmeE0xOoDwuZJ7I';
-        const sheetUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?output=csv`;
+        // Enlace exacto y directo de tu publicación en Google Sheets en formato CSV
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pub?output=csv";
 
         // Función principal para descargar e interpretar la lista de productos
         async function fetchProductsFromSheets() {
             try {
-                // cachebuster evita que el navegador guarde una copia vieja del catálogo en memoria
+                // Forzamos la actualización instantánea con un cachebuster temporal
                 const response = await fetch(`${sheetUrl}&cachebuster=${new Date().getTime()}`);
                 const csvText = await response.text();
                 
-                // Dividimos el texto en renglones de forma segura
+                // Dividimos de forma robusta por filas
                 const lines = csvText.split(/\r?\n/);
                 const loadedProducts = [];
 
-                // Empezamos desde la línea 1 (saltando la fila de títulos ID, Nombre, Precio...)
+                // Saltamos el encabezado (fila 0) y recorremos los productos reales
                 for (let i = 1; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (!line) continue;
 
-                    // Separador por comas respetando celdas que tengan comillas internas
+                    // Expresión regular para separar por comas respetando celdas que traen comillas internas
                     const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     
-                    // Si el renglón está incompleto, pasa al siguiente para prevenir errores
                     if (columns.length < 3) continue;
 
                     const idRaw = columns[0]?.replace(/"/g, '') || i;
@@ -160,7 +158,6 @@
                     const descRaw = columns[3]?.replace(/"/g, '') || "";
                     const imgRaw = columns[4]?.replace(/"/g, '').trim() || "imagenes/logo.png";
 
-                    // Clasificación de categorías basada en el texto del nombre
                     loadedProducts.push({
                         id: parseInt(idRaw),
                         name: nameRaw,
@@ -170,14 +167,14 @@
                         size: "Medidas estándar a pedido",
                         desc: descRaw,
                         imgDefault: imgRaw,
-                        imgHover: imgRaw, // Animación dual preestablecida con la misma foto
+                        imgHover: imgRaw,
                         hasColors: false,
                         colors: []
                     });
                 }
 
                 products = loadedProducts;
-                filterProducts(categoriaActiva); // Renderiza los productos cargados
+                filterProducts(categoriaActiva);
             } catch (error) {
                 console.error("Error cargando base de datos de Google Sheets:", error);
             }
@@ -300,7 +297,7 @@
             window.open(`https://wa.me/5491170669275?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // Ejecución al iniciar la página
+        // Ejecución inmediata al cargar la ventana
         window.onload = async () => { 
             await fetchProductsFromSheets(); 
             renderCart(); 
