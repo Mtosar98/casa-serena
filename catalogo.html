@@ -89,7 +89,7 @@
 
     <main class="container mx-auto px-6 pb-24">
         <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-            </div>
+        </div>
     </main>
 
     <div id="product-modal" class="fixed inset-0 bg-black/60 z-[3000] hidden flex items-center justify-center p-4 backdrop-blur-sm">
@@ -128,34 +128,39 @@
         let products = []; // Se rellenará dinámicamente con Google Sheets
         let categoriaActiva = 'todos';
 
-        // Configuración de tu Google Sheets pública
-        const  sheetUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pubhtml`;
+        // Configuración de tu Google Sheets pública (Usamos tu ID directo en formato CSV limpio)
+        const SHEET_ID = '1TpYE512TcmtKdTlEhuzesPbN0IFnAmeE0xOoDwuZJ7I';
+        const sheetUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?output=csv`;
 
         // Función principal para descargar e interpretar la lista de productos
         async function fetchProductsFromSheets() {
             try {
-                const response = await fetch(sheetUrl);
+                // cachebuster evita que el navegador guarde una copia vieja del catálogo en memoria
+                const response = await fetch(`${sheetUrl}&cachebuster=${new Date().getTime()}`);
                 const csvText = await response.text();
                 
-                const lines = csvText.split('\n');
+                // Dividimos el texto en renglones de forma segura
+                const lines = csvText.split(/\r?\n/);
                 const loadedProducts = [];
 
-                // Empezamos desde la línea 1 (saltando la fila de títulos de la planilla)
+                // Empezamos desde la línea 1 (saltando la fila de títulos ID, Nombre, Precio...)
                 for (let i = 1; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (!line) continue;
 
-                    // Separador robusto por comas respetando contenidos con comillas internos
+                    // Separador por comas respetando celdas que tengan comillas internas
                     const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     
+                    // Si el renglón está incompleto, pasa al siguiente para prevenir errores
+                    if (columns.length < 3) continue;
+
                     const idRaw = columns[0]?.replace(/"/g, '') || i;
                     const nameRaw = columns[1]?.replace(/"/g, '') || "Producto Sin Nombre";
-                    const priceRaw = parseFloat(columns[2]?.replace(/"/g, '')) || 0;
+                    const priceRaw = parseFloat(columns[2]?.replace(/"/g, '').replace(/[^0-9.]/g, '')) || 0;
                     const descRaw = columns[3]?.replace(/"/g, '') || "";
                     const imgRaw = columns[4]?.replace(/"/g, '').trim() || "imagenes/logo.png";
 
-                    // Mapeo inteligente: para mantener tu lógica de "Colores", "Hover Dual" y "Medidas", 
-                    // creamos variantes por defecto basadas en lo que cargues en tu Excel.
+                    // Clasificación de categorías basada en el texto del nombre
                     loadedProducts.push({
                         id: parseInt(idRaw),
                         name: nameRaw,
@@ -165,14 +170,14 @@
                         size: "Medidas estándar a pedido",
                         desc: descRaw,
                         imgDefault: imgRaw,
-                        imgHover: imgRaw, // Inicialmente la misma, expandible si agregas columnas
-                        hasColors: false, // Por defecto falso, para gestionarlo simple por Excel
+                        imgHover: imgRaw, // Animación dual preestablecida con la misma foto
+                        hasColors: false,
                         colors: []
                     });
                 }
 
                 products = loadedProducts;
-                filterProducts(categoriaActiva); // Renderiza en base a la pestaña seleccionada
+                filterProducts(categoriaActiva); // Renderiza los productos cargados
             } catch (error) {
                 console.error("Error cargando base de datos de Google Sheets:", error);
             }
