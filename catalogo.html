@@ -14,7 +14,7 @@
         .header-main { background-color: #F4F1E6; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #e5e7eb; }
         .logo-main { height: 140px; transition: all 0.3s ease; } 
         
-        .filter-badge { border: 1px solid #e5e7eb; padding: 10px 24px; font-size: 11px; text-transform: uppercase; tracking: 0.15em; font-weight: 600; transition: all 0.3s ease; }
+        .filter-badge { border: 1px solid #e5e7eb; padding: 10px 24px; font-size: 11px; text-transform: uppercase; tracking: 0.15em; font-weight: 600; transition: all 0.3s ease; cursor: pointer; }
         .filter-badge.active { background-color: #5D4037; color: white; border-color: #5D4037; }
         .filter-badge:hover:not(.active) { background-color: #F4F1E6; color: #5D4037; }
 
@@ -22,6 +22,13 @@
         .cart-open #cart-sidebar { transform: translateX(0); }
         .cart-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1500; backdrop-filter: blur(2px); }
         .cart-open .cart-overlay { display: block; }
+
+        /* Slider del Modal Interno */
+        .modal-slider-container { position: relative; width: 100%; height: 100%; min-height: 350px; background: #fdfbf9; overflow: hidden; }
+        .modal-slider-track { display: flex; width: 100%; height: 100%; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-slide-img { min-width: 100%; height: 100%; object-fit: cover; }
+        .modal-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.85); color: #5D4037; width: 36px; height: 36px; border-radius: 50%; display: flex; items-center; justify-content: center; cursor: pointer; z-index: 20; transition: all 0.2s; shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .modal-arrow:hover { background: #5D4037; color: white; }
     </style>
 </head>
 <body>
@@ -116,12 +123,19 @@
         </div>
     </main>
 
-    <div id="product-modal" class="fixed inset-0 bg-black/60 z-[3000] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-4xl h-[80vh] overflow-y-auto relative flex flex-col md:flex-row shadow-2xl">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-3xl text-gray-300 hover:text-black z-10">&times;</button>
-            <div class="w-full md:w-1/2 h-64 md:h-full bg-gray-50">
-                <img id="modal-img" src="" class="w-full h-full object-cover">
+    <div id="product-modal" class="fixed inset-0 bg-black/60 z-[3000] hidden flex items-center justify-center p-4 backdrop-blur-sm" onclick="closeModal()">
+        <div class="bg-white w-full max-w-4xl h-[85vh] md:h-[75vh] overflow-y-auto relative flex flex-col md:flex-row shadow-2xl rounded-sm" onclick="event.stopPropagation()">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-3xl text-gray-300 hover:text-black z-30">&times;</button>
+            
+            <div class="w-full md:w-1/2 h-80 md:h-full relative bg-gray-50">
+                <button id="modal-arrow-left" onclick="moveModalImage(-1)" class="modal-arrow left-4"><i class="fa fa-chevron-left text-xs"></i></button>
+                <button id="modal-arrow-right" onclick="moveModalImage(1)" class="modal-arrow right-4"><i class="fa fa-chevron-right text-xs"></i></button>
+                <div class="modal-slider-container">
+                    <div id="modal-slider-track" class="modal-slider-track">
+                        </div>
+                </div>
             </div>
+
             <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center space-y-6">
                 <div>
                     <span id="modal-cat" class="text-[9px] uppercase tracking-[0.4em] text-gray-400 font-bold">Línea</span>
@@ -129,16 +143,12 @@
                     <p id="modal-price" class="text-2xl font-bold text-[#5D4037] mt-2">$0</p>
                 </div>
 
-                <div id="color-selection-area" class="space-y-2 border-t pt-4">
-                    <span class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block">Color del Tapizado:</span>
-                    <div class="flex gap-3" id="modal-colors-container"></div>
+                <div class="space-y-2 text-xs text-gray-500 border-t pt-4">
+                    <p><strong>Estructura & Detalles:</strong></p>
+                    <p id="modal-desc" class="italic font-light text-gray-600 leading-relaxed"></p>
                 </div>
-
-                <div class="space-y-2 text-xs text-gray-500 italic">
-                    <p><strong>Dimensiones:</strong> <span id="modal-size">Medidas</span></p>
-                    <p><strong>Estructura:</strong> <span id="modal-desc">Detalle</span></p>
-                </div>
-                <button id="modal-add-btn" class="w-full bg-[#5D4037] text-white py-4 font-bold uppercase tracking-widest text-xs hover:bg-[#3E2723] transition">Agregar al Pedido</button>
+                
+                <button id="modal-add-btn" class="w-full bg-[#5D4037] text-white py-4 font-bold uppercase tracking-widest text-xs hover:bg-[#3E2723] transition shadow-md">Agregar al Pedido</button>
             </div>
         </div>
     </div>
@@ -151,11 +161,13 @@
         let currentSelectedColorProduct = null;
         let products = []; 
         let categoriaActiva = 'todos';
+        
+        // Variables globales para controlar las imágenes del modal abierto
+        let modalImagesArr = [];
+        let modalImageIndex = 0;
 
-        // Credenciales oficiales obtenidas
         const MP_PUBLIC_KEY = "APP_USR-8035369065508506-060123-3a290a16a32e09014e04493e54098b0a-3442108391"; 
-
-        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pub?output=csv";
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pub?output=csv&gid=0";
 
         async function fetchProductsFromSheets() {
             try {
@@ -168,13 +180,21 @@
                     const line = lines[i].trim();
                     if (!line) continue;
                     const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if (columns.length < 3) continue;
+                    if (columns.length < 5) continue;
 
                     const idRaw = columns[0]?.replace(/"/g, '') || i;
                     const nameRaw = columns[1]?.replace(/"/g, '') || "Producto Sin Nombre";
                     const priceRaw = parseFloat(columns[2]?.replace(/"/g, '').replace(/[^0-9.]/g, '')) || 0;
                     const descRaw = columns[3]?.replace(/"/g, '') || "";
-                    const imgRaw = columns[4]?.replace(/"/g, '').trim() || "imagenes/logo.png";
+                    
+                    // Procesamos las 3 columnas de imagen (E, F y G)
+                    const imagesArr = [
+                        columns[4]?.replace(/"/g, '').trim(),
+                        columns[5]?.replace(/"/g, '').trim(),
+                        columns[6]?.replace(/"/g, '').trim()
+                    ].filter(url => url && url.startsWith('http'));
+
+                    if (imagesArr.length === 0) imagesArr.push("imagenes/logo.png");
 
                     loadedProducts.push({
                         id: parseInt(idRaw),
@@ -182,12 +202,8 @@
                         price: priceRaw,
                         cat: nameRaw.toLowerCase().includes("puff") || nameRaw.toLowerCase().includes("botinero") ? "puffs" : 
                              nameRaw.toLowerCase().includes("lámpara") || nameRaw.toLowerCase().includes("deco") ? "deco" : "sillones",
-                        size: "Medidas estándar a pedido",
                         desc: descRaw,
-                        imgDefault: imgRaw,
-                        imgHover: imgRaw,
-                        hasColors: false,
-                        colors: []
+                        images: imagesArr
                     });
                 }
                 products = loadedProducts;
@@ -215,8 +231,7 @@
             grid.innerHTML = filtered.map(p => `
                 <div class="group cursor-pointer bg-white border border-gray-100 p-2 shadow-xs transition hover:shadow-md" onclick="openModal(${p.id})">
                     <div class="relative overflow-hidden h-72 w-full bg-gray-50 mb-4 rounded-xs">
-                        <img src="${p.imgDefault}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-100 group-hover:opacity-0">
-                        <img src="${p.imgHover || p.imgDefault}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100">
+                        <img src="${p.images[0]}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
                     </div>
                     <div class="p-2 space-y-1">
                         <h4 class="text-[9px] uppercase tracking-[0.2em] text-gray-400 font-bold">${p.cat}</h4>
@@ -237,35 +252,46 @@
             document.getElementById('modal-name').innerText = p.name;
             document.getElementById('modal-cat').innerText = p.cat.toUpperCase();
             document.getElementById('modal-price').innerText = '$' + p.price.toLocaleString('es-AR');
-            document.getElementById('modal-size').innerText = p.size;
             document.getElementById('modal-desc').innerText = p.desc;
             
-            const colorsContainer = document.getElementById('modal-colors-container');
-            const colorsArea = document.getElementById('color-selection-area');
+            // Lógica Multi-Imagen interna
+            modalImagesArr = p.images;
+            modalImageIndex = 0;
+            
+            const track = document.getElementById('modal-slider-track');
+            track.innerHTML = modalImagesArr.map(img => `<img src="${img}" class="modal-slide-img">`).join('');
+            
+            // Mostrar u ocultar flechas dependiendo si tiene imágenes extras cargadas
+            const showArrows = modalImagesArr.length > 1;
+            document.getElementById('modal-arrow-left').style.display = showArrows ? 'flex' : 'none';
+            document.getElementById('modal-arrow-right').style.display = showArrows ? 'flex' : 'none';
+            
+            updateModalSliderPosition();
 
-            if(p.hasColors && p.colors.length > 0) {
-                colorsArea.classList.remove('hidden');
-                selectVariant(p, 0);
-                colorsContainer.innerHTML = p.colors.map((c, idx) => `
-                    <button onclick="selectVariant(products.find(x=>x.id===${p.id}), ${idx})" class="w-8 h-8 rounded-full border border-gray-300 shadow-xs" style="background-color: ${c.hex};" title="${c.name}"></button>
-                `).join('');
-            } else {
-                colorsArea.classList.add('hidden');
-                document.getElementById('modal-img').src = p.imgDefault;
-                currentSelectedColorProduct = { name: p.name, price: p.price, img: p.imgDefault };
-            }
+            currentSelectedColorProduct = { name: p.name, price: p.price, img: p.images[0] };
+            
             document.getElementById('modal-add-btn').onclick = () => { addToCart(currentSelectedColorProduct); closeModal(); };
             document.getElementById('product-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
         }
 
-        function selectVariant(product, index) {
-            const variant = product.colors[index];
-            document.getElementById('modal-img').src = variant.img;
-            document.getElementById('modal-name').innerText = `${product.name} (${variant.name})`;
-            currentSelectedColorProduct = { name: `${product.name} (${variant.name})`, price: product.price, img: variant.img };
+        function moveModalImage(direction) {
+            modalImageIndex = (modalImageIndex + direction + modalImagesArr.length) % modalImagesArr.length;
+            updateModalSliderPosition();
         }
 
-        function closeModal() { document.getElementById('product-modal').classList.add('hidden'); }
+        function updateModalSliderPosition() {
+            const track = document.getElementById('modal-slider-track');
+            if (track) {
+                track.style.transform = `translateX(-${modalImageIndex * 100}%)`;
+            }
+        }
+
+        function closeModal() { 
+            document.getElementById('product-modal').classList.add('hidden'); 
+            document.body.style.overflow = 'auto';
+        }
+        
         function toggleCart() { document.body.classList.toggle('cart-open'); renderCart(); }
         
         function renderCart() {
@@ -330,7 +356,6 @@
             }
         }
 
-        // LÓGICA DE EJECUCIÓN DIRECTA SEGÚN MÉTODO SELECCIONADO
         function executeCheckout() {
             const cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
             if(!cart.length) return;
@@ -350,15 +375,9 @@
                 window.open(`https://wa.me/5491170669275?text=${encodeURIComponent(msg)}`, '_blank');
             } 
             else if (method === 'mercadopago') {
-                // Formateamos el título de los productos para la pasarela
                 const titlePreference = cart.map(i => i.name).join(', ');
-                
-                // Redirección directa al Link de Pago dinámico comercial oficial sin pasar por WhatsApp
-                // Reemplaza el id de usuario (el número final de tu clave si quieres) o usa el checkout general
                 const encodedTitle = encodeURIComponent(`Pedido Casa Serena: ${titlePreference}`);
                 const checkoutUrl = `https://link.mercadopago.com.ar/create?title=${encodedTitle}&price=${total}&currency=ARS`;
-                
-                // Abre directamente la pasarela oficial donde eligen tarjeta, cuotas o saldo
                 window.open(checkoutUrl, '_blank');
             }
         }
