@@ -253,8 +253,8 @@
     <script>
         async function fetchImagesFromIndexSheet() {
             try {
-                // Sincronización exacta apuntando al GID de tu pestaña "Index" en formato de datos puros CSV
-                const response = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pub?output=csv&gid=1156829777&cachebuster=${new Date().getTime()}`);
+                // 🛠️ SE ACTUALIZÓ EL ENLACE DE ABAJO CON TU GID DEFINITIVO: 847433066
+                const response = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pub?output=csv&gid=847433066&cachebuster=${new Date().getTime()}`);
                 const csvText = await response.text();
                 const lines = csvText.split(/\r?\n/);
 
@@ -271,7 +271,6 @@
 
                     if (!link) continue;
 
-                    // Mapeo dinámico e inteligente según tu captura de pantalla
                     if (sector === "logo") {
                         if(document.getElementById('web-logo')) document.getElementById('web-logo').src = link;
                         if(document.getElementById('web-logo-footer')) document.getElementById('web-logo-footer').src = link;
@@ -309,7 +308,7 @@
             } else {
                 container.innerHTML = cart.map((item, idx) => `
                     <div class="flex gap-4 border-b border-gray-100 pb-4 items-center">
-                        <img src="${item.img}" class="w-16 h-16 object-cover rounded shadow-xs">
+                        <img src="${item.img}" class="w-16 h-16 object-cover rounded shadow-sm">
                         <div class="flex-1">
                             <h4 class="text-xs font-bold uppercase tracking-widest">${item.name}</h4>
                             <p class="text-xs font-bold text-[#5D4037] mt-1">$${item.price.toLocaleString('es-AR')}</p>
