@@ -179,7 +179,7 @@
                         En Casa Serena creemos que el hogar debe ser un santuario de paz. Desde hace más de una década, nos dedicamos a diseñar y fabricar piezas de mobiliario exclusivas que fusionan la calidez de la madera nativa patagónica con líneas contemporáneas de lujo y un confort inigualable.
                     </p>
                     <p class="text-gray-500 text-sm leading-relaxed italic font-light">
-                        No producimos en masa; cada sillón, puff y mesa de centro es trabajado de forma artesanal por maestros tapiceros y carpinteros, utilizando linos importados antimanchas y terminaciones naturales que respetan la identidad de la materia prima. Hacemos muebles pensados para durar generations.
+                        No producimos en masa; cada sillón, puff y mesa de centro es trabajado de forma artesanal por maestros tapiceros y carpinteros, utilizando linos importados antimanchas y terminaciones naturales que respetan la identidad de la materia prima. Hacemos muebles pensados para durar generaciones.
                     </p>
                 </div>
                 <div class="relative order-1 md:order-2">
@@ -253,12 +253,11 @@
     <script>
         async function fetchImagesFromIndexSheet() {
             try {
-                // Se corrigió la URL del Sheets para que busque de forma automática la hoja llamada "Index" con la ruta pública general
-                const response = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pub?output=csv&sheet=Index&cachebuster=${new Date().getTime()}`);
+                // Sincronización exacta apuntando al GID de tu pestaña "Index" en formato de datos puros CSV
+                const response = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pub?output=csv&gid=1156829777&cachebuster=${new Date().getTime()}`);
                 const csvText = await response.text();
                 const lines = csvText.split(/\r?\n/);
 
-                // Reiniciamos contadores para el carrusel de la línea selección
                 let seleccionCount = 1;
 
                 for (let i = 1; i < lines.length; i++) {
@@ -284,7 +283,6 @@
                         if(document.getElementById('web-taller')) document.getElementById('web-taller').src = link;
                     } 
                     else if (sector.includes("linea seleccion")) {
-                        // Vincula en orden las fotos del carrusel de Selección (Foto 1, Foto 2, Foto 3)
                         let targetImg = document.getElementById(`seleccion-img-${seleccionCount}`);
                         if (targetImg) {
                             targetImg.src = link;
