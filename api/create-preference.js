@@ -36,7 +36,7 @@ export default async function handler(req, res) {
             };
         });
 
-        const MP_ACCESS_TOKEN = "APP_USR-48317883-d78d-44d4-af94-34268b4b290f"; 
+        const MP_ACCESS_TOKEN = "APP_USR-2092297663156738-061019-56d9c03abbff892e125824f5347097ba-132951745";
 
         const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
             method: 'POST',
