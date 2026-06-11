@@ -27,8 +27,10 @@
         .modal-slider-container { position: relative; width: 100%; height: 100%; min-height: 350px; background: #fdfbf9; overflow: hidden; }
         .modal-slider-track { display: flex; width: 100%; height: 100%; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         .modal-slide-img { min-width: 100%; height: 100%; object-fit: cover; }
-        .modal-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.85); color: #5D4037; width: 36px; height: 36px; border-radius: 50%; display: flex; items-center; justify-content: center; cursor: pointer; z-index: 20; transition: all 0.2s; shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .modal-arrow:hover { background: #5D4037; color: white; }
+        
+        /* 🎨 CORRECCIÓN DE FLECHAS: Sin círculos, tipografía limpia y sutil */
+        .modal-arrow { position: absolute; top: 50%; transform: translateY(-50%); color: #4A332C; opacity: 0.4; font-size: 24px; display: flex; items-center; justify-content: center; cursor: pointer; z-index: 20; transition: opacity 0.2s ease; width: 30px; height: 100%; }
+        .modal-arrow:hover { opacity: 1; }
     </style>
 </head>
 <body>
@@ -128,11 +130,11 @@
             <button onclick="closeModal()" class="absolute top-4 right-4 text-3xl text-gray-300 hover:text-black z-30">&times;</button>
             
             <div class="w-full md:w-1/2 h-80 md:h-full relative bg-gray-50">
-                <button id="modal-arrow-left" onclick="moveModalImage(-1)" class="modal-arrow left-4"><i class="fa fa-chevron-left text-xs"></i></button>
-                <button id="modal-arrow-right" onclick="moveModalImage(1)" class="modal-arrow right-4"><i class="fa fa-chevron-right text-xs"></i></button>
+                <button id="modal-arrow-left" onclick="moveModalImage(-1)" class="modal-arrow left-2"><i class="fa fa-chevron-left"></i></button>
+                <button id="modal-arrow-right" onclick="moveModalImage(1)" class="modal-arrow right-2"><i class="fa fa-chevron-right"></i></button>
                 <div class="modal-slider-container">
                     <div id="modal-slider-track" class="modal-slider-track">
-                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -145,7 +147,7 @@
 
                 <div class="space-y-2 text-xs text-gray-500 border-t pt-4">
                     <p><strong>Estructura & Detalles:</strong></p>
-                    <p id="modal-desc" class="italic font-light text-gray-600 leading-relaxed"></p>
+                    <div id="modal-desc" class="italic font-light text-gray-600 leading-relaxed"></div>
                 </div>
                 
                 <button id="modal-add-btn" class="w-full bg-[#5D4037] text-white py-4 font-bold uppercase tracking-widest text-xs hover:bg-[#3E2723] transition shadow-md">Agregar al Pedido</button>
@@ -162,11 +164,11 @@
         let products = []; 
         let categoriaActiva = 'todos';
         
-        // Variables globales para controlar las imágenes del modal abierto
         let modalImagesArr = [];
         let modalImageIndex = 0;
 
-        const MP_PUBLIC_KEY = "APP_USR-8035369065508506-060123-3a290a16a32e09014e04493e54098b0a-3442108391"; 
+        // 🛡️ ACTUALIZADO CON TUS CREDENCIALES OFICIALES DE PRODUCCIÓN
+        const MP_PUBLIC_KEY = "APP_USR-48317883-d78d-44d4-af94-34268b4b290f"; 
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pub?output=csv&gid=0";
 
         async function fetchProductsFromSheets() {
@@ -187,7 +189,6 @@
                     const priceRaw = parseFloat(columns[2]?.replace(/"/g, '').replace(/[^0-9.]/g, '')) || 0;
                     const descRaw = columns[3]?.replace(/"/g, '') || "";
                     
-                    // Procesamos las 3 columnas de imagen (E, F y G)
                     const imagesArr = [
                         columns[4]?.replace(/"/g, '').trim(),
                         columns[5]?.replace(/"/g, '').trim(),
@@ -252,16 +253,14 @@
             document.getElementById('modal-name').innerText = p.name;
             document.getElementById('modal-cat').innerText = p.cat.toUpperCase();
             document.getElementById('modal-price').innerText = '$' + p.price.toLocaleString('es-AR');
-            document.getElementById('modal-desc').innerText = p.desc;
+            document.getElementById('modal-desc').innerHTML = p.desc;
             
-            // Lógica Multi-Imagen interna
             modalImagesArr = p.images;
             modalImageIndex = 0;
             
             const track = document.getElementById('modal-slider-track');
             track.innerHTML = modalImagesArr.map(img => `<img src="${img}" class="modal-slide-img">`).join('');
             
-            // Mostrar u ocultar flechas dependiendo si tiene imágenes extras cargadas
             const showArrows = modalImagesArr.length > 1;
             document.getElementById('modal-arrow-left').style.display = showArrows ? 'flex' : 'none';
             document.getElementById('modal-arrow-right').style.display = showArrows ? 'flex' : 'none';
@@ -377,7 +376,8 @@
             else if (method === 'mercadopago') {
                 const titlePreference = cart.map(i => i.name).join(', ');
                 const encodedTitle = encodeURIComponent(`Pedido Casa Serena: ${titlePreference}`);
-                const checkoutUrl = `https://link.mercadopago.com.ar/create?title=${encodedTitle}&price=${total}&currency=ARS`;
+                // 🛡️ ACTUALIZADO CON TU USER_ID DEFINITIVO AL FINAL DE LA URL
+                const checkoutUrl = `https://link.mercadopago.com.ar/create?title=${encodedTitle}&price=${total}&currency=ARS&user_id=132951745`;
                 window.open(checkoutUrl, '_blank');
             }
         }

@@ -288,7 +288,6 @@
     <script>
         async function fetchImagesAndTextsFromSheet() {
             try {
-                // Sincronización exacta apuntando al GID real de tu pestaña Index (847433066)
                 const response = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pub?output=csv&gid=847433066&cachebuster=${new Date().getTime()}`);
                 const csvText = await response.text();
                 const lines = csvText.split(/\r?\n/);
@@ -428,7 +427,8 @@
                 window.open(`https://wa.me/5491170669275?text=${encodeURIComponent(msg)}`, '_blank');
             } else {
                 const titlePreference = cart.map(i => i.name).join(', ');
-                window.open(`https://link.mercadopago.com.ar/create?title=${encodeURIComponent(titlePreference)}&price=${total}&currency=ARS`, '_blank');
+                // 🛡️ ADICIÓN DE TU USER_ID REAL AL FINAL DE LA LÍNEA COMERCIAL
+                window.open(`https://link.mercadopago.com.ar/create?title=${encodeURIComponent(titlePreference)}&price=${total}&currency=ARS&user_id=132951745`, '_blank');
             }
         }
 
@@ -476,18 +476,6 @@
         function nextManualSlide() {
             stopAutoSlide();
             currentSlide = (currentSlide + 1) % 3;
-            updateCarousel();
-        }
-
-        function prevManualSlide() {
-            stopAutoSlide();
-            currentSlide = (currentSlide - 1 + 3) % 3;
-            updateCarousel();
-        }
-
-        function setManualSlide(index) {
-            stopAutoSlide();
-            currentSlide = index;
             updateCarousel();
         }
 
