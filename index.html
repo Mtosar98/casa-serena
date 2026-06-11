@@ -413,24 +413,54 @@
             }
         }
 
-       function executeCheckout() {
+  async function executeCheckout() {
             const cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
             if(!cart.length) return alert('El carrito está vacío');
+
             const method = document.querySelector('input[name="payment-method"]:checked').value;
             const total = cart.reduce((acc, curr) => acc + curr.price, 0);
 
             if (method === 'transferencia') {
                 const totalDescuento = total * 0.85;
                 let msg = "✨ *NUEVO PEDIDO - CASA SERENA (TRANSFERENCIA)* ✨\n\n";
-                cart.forEach(item => { msg += `• ${item.name} ($${item.price.toLocaleString('es-AR')})\n`; });
-                msg += `\n🔥 *Total con 15% OFF:* $${totalDescuento.toLocaleString('es-AR')}\n`;
-                window.open(`https://wa.me/5491170669275?text=${encodeURIComponent(msg)}`, '_blank');
-            } else {
-                const titlePreference = cart.map(i => i.name).join(', ');
+                msg += "Hola! Acabo de ver el catálogo y quiero transferir por estos productos:\n";
                 
-                // 🚀 CAMBIO SEGURO: Generamos una solicitud de checkout estándar limpia usando tu número de cobrador oficial
-                const mpUrl = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=0&collector_id=132951745&client_id=APP_USR-48317883-d78d-44d4-af94-34268b4b290f&reason=${encodeURIComponent('Pedido Casa Serena: ' + titlePreference)}&price=${total}`;
-                window.open(mpUrl, '_blank');
+                // Agrupamos por si llevaron repetidos, o listamos directo
+                cart.forEach(item => { msg += `• ${item.name} ($${item.price.toLocaleString('es-AR')})\n`; });
+                msg += `\n💵 *Subtotal:* $${total.toLocaleString('es-AR')}\n`;
+                msg += `🔥 *Total con 15% OFF:* $${totalDescuento.toLocaleString('es-AR')}\n\n`;
+                msg += "🏛️ _Ya agendé los datos de la cuenta. ¡En breve les adjunto el comprobante por acá!_";
+                
+                window.open(`https://wa.me/5491170669275?text=${encodeURIComponent(msg)}`, '_blank');
+            } 
+            else if (method === 'mercadopago') {
+                // Bloqueamos el botón o ponemos un aviso de carga para que no lo toquen mil veces
+                const btnSubmit = document.querySelector('.btn-checkout') || { textContent: '' };
+                const originalText = btnSubmit.textContent;
+                if(btnSubmit) btnSubmit.textContent = "Procesando con Mercado Pago...";
+
+                try {
+                    // 🚀 LLAMADA A TU PROPIA SERVERLESS API DE VERCEL
+                    const response = await fetch('/api/create-preference', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ items: cart })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.init_point) {
+                        // ¡Éxito total! Redirigimos al Checkout oficial e integrado de Mercado Pago
+                        window.location.href = data.init_point;
+                    } else {
+                        alert('Tuvimos un inconveniente al generar el cobro. Por favor, intentá nuevamente o elegí transferencia.');
+                        if(btnSubmit) btnSubmit.textContent = originalText;
+                    }
+                } catch (error) {
+                    console.error("Error en checkout:", error);
+                    alert('Error de conexión con la pasarela de pagos.');
+                    if(btnSubmit) btnSubmit.textContent = originalText;
+                }
             }
         }
 
