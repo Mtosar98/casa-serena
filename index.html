@@ -413,7 +413,7 @@
             }
         }
 
-        function executeCheckout() {
+       function executeCheckout() {
             const cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
             if(!cart.length) return alert('El carrito está vacío');
             const method = document.querySelector('input[name="payment-method"]:checked').value;
@@ -427,8 +427,10 @@
                 window.open(`https://wa.me/5491170669275?text=${encodeURIComponent(msg)}`, '_blank');
             } else {
                 const titlePreference = cart.map(i => i.name).join(', ');
-                // 🛡️ ADICIÓN DE TU USER_ID REAL AL FINAL DE LA LÍNEA COMERCIAL
-                window.open(`https://link.mercadopago.com.ar/create?title=${encodeURIComponent(titlePreference)}&price=${total}&currency=ARS&user_id=132951745`, '_blank');
+                
+                // 🚀 CAMBIO SEGURO: Generamos una solicitud de checkout estándar limpia usando tu número de cobrador oficial
+                const mpUrl = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=0&collector_id=132951745&client_id=APP_USR-48317883-d78d-44d4-af94-34268b4b290f&reason=${encodeURIComponent('Pedido Casa Serena: ' + titlePreference)}&price=${total}`;
+                window.open(mpUrl, '_blank');
             }
         }
 

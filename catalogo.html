@@ -355,7 +355,7 @@
             }
         }
 
-        function executeCheckout() {
+function executeCheckout() {
             const cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
             if(!cart.length) return;
 
@@ -375,13 +375,12 @@
             } 
             else if (method === 'mercadopago') {
                 const titlePreference = cart.map(i => i.name).join(', ');
-                const encodedTitle = encodeURIComponent(`Pedido Casa Serena: ${titlePreference}`);
-                // 🛡️ ACTUALIZADO CON TU USER_ID DEFINITIVO AL FINAL DE LA URL
-                const checkoutUrl = `https://link.mercadopago.com.ar/create?title=${encodedTitle}&price=${total}&currency=ARS&user_id=132951745`;
-                window.open(checkoutUrl, '_blank');
+                
+                // 🚀 CAMBIO SEGURO: Generamos una solicitud de checkout estándar limpia usando tu número de cobrador oficial
+                const mpUrl = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=0&collector_id=132951745&client_id=${MP_PUBLIC_KEY}&reason=${encodeURIComponent('Pedido Casa Serena: ' + titlePreference)}&price=${total}`;
+                window.open(mpUrl, '_blank');
             }
         }
-
         window.onload = async () => { 
             await fetchProductsFromSheets(); 
             renderCart(); 
