@@ -209,9 +209,9 @@
                 <div class="lg:col-span-7 relative rounded-lg shadow-xl overflow-hidden bg-white p-3 border border-gray-100 group">
                     <div class="carousel-container rounded-sm">
                         <div class="carousel-slide" id="carouselSlide">
-                            <img id="seleccion-img-1" src="" class="carousel-img" onclick="openZoom(this)" alt="Slide 1">
-                            <img id="seleccion-img-2" src="" class="carousel-img" onclick="openZoom(this)" alt="Slide 2">
-                            <img id="seleccion-img-3" src="" class="carousel-img" onclick="openZoom(this)" alt="Slide 3">
+                            <img id="seleccion-img-1" src="" class="carousel-img" onclick="openZoom(0)" alt="Slide 1">
+                            <img id="seleccion-img-2" src="" class="carousel-img" onclick="openZoom(1)" alt="Slide 2">
+                            <img id="seleccion-img-3" src="" class="carousel-img" onclick="openZoom(2)" alt="Slide 3">
                         </div>
                     </div>
 
@@ -245,9 +245,13 @@
         </div>
     </section>
 
-    <div id="zoomModal" class="fixed inset-0 bg-black/90 hidden z-[9999] flex items-center justify-center p-4" onclick="closeZoom()">
-        <button class="absolute top-6 right-6 text-white text-4xl hover:text-gray-300 transition">&times;</button>
-        <img id="zoomImg" class="max-w-full max-h-[90vh] object-contain rounded shadow-2xl" src="" alt="Zoom Casa Serena" onclick="event.stopPropagation()">
+    <div id="zoomModal" class="fixed inset-0 bg-black/90 hidden z-[9999] flex items-center justify-center p-4 select-none" onclick="closeZoom()">
+        <button class="absolute top-6 right-6 text-white text-4xl hover:text-gray-300 transition z-50">&times;</button>
+        
+        <button onclick="navigateZoom(event, -1)" class="absolute left-6 text-white/40 hover:text-white text-5xl transition z-50 p-4 bg-black/10 hover:bg-black/30 rounded-sm"><i class="fa fa-chevron-left"></i></button>
+        <button onclick="navigateZoom(event, 1)" class="absolute right-6 text-white/40 hover:text-white text-5xl transition z-50 p-4 bg-black/10 hover:bg-black/30 rounded-sm"><i class="fa fa-chevron-right"></i></button>
+        
+        <img id="zoomImg" class="max-w-full max-h-[85vh] object-contain rounded shadow-2xl transition-all duration-300 select-none" src="" alt="Zoom Casa Serena" onclick="event.stopPropagation()">
     </div>
 
     <section id="nosotros" class="py-24 bg-white">
@@ -334,6 +338,7 @@
     <script>
         let costoEnvioActual = 0;
         let seleccionImagesArr = [];
+        let currentZoomIndex = 0; // Control de posición de foto dentro del zoom
 
         async function fetchImagesAndTextsFromSheet() {
             try {
@@ -378,14 +383,13 @@
                             seleccionCount++;
                         }
                     }
-                    // 🛡️ CONTROL ROBUSTO DE MAYÚSCULAS/ESPACIOS PARA LAS 4 FOTOS DE INSTAGRAM
                     else if (sector.includes("instagram foto 1") && document.getElementById('insta-img-1')) {
                         document.getElementById('insta-img-1').src = contenido;
                     }
                     else if (sector.includes("instagram foto 2") && document.getElementById('insta-img-2')) {
                         document.getElementById('insta-img-2').src = contenido;
                     }
-                    else if (sector.includes("instagram foto 3" ) && document.getElementById('insta-img-3')) {
+                    else if (sector.includes("instagram foto 3") && document.getElementById('insta-img-3')) {
                         document.getElementById('insta-img-3').src = contenido;
                     }
                     else if (sector.includes("instagram foto 4") && document.getElementById('insta-img-4')) {
@@ -537,7 +541,6 @@
 
         function addSillonArg() {
             let cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
-            // 🚀 SOLUCIÓN FOTO CARRILLO: Si la base de datos cargó la imagen, la usamos. Si no, usa el logo por defecto.
             const imgOficial = seleccionImagesArr[0] || document.getElementById('seleccion-img-1').src || 'imagenes/portada.jpg';
             cart.push({name: 'Sillón Destacado - Edición Casa Serena', price: 450000, img: imgOficial});
             localStorage.setItem('cs_cart', JSON.stringify(cart));
@@ -669,16 +672,39 @@
         function prevManualSlide() { stopAutoSlide(); currentSlide = (currentSlide - 1 + 3) % 3; updateCarousel(); }
         function setManualSlide(index) { stopAutoSlide(); currentSlide = index; updateCarousel(); }
 
-        // --- 🚀 SOLUCIÓN DEL ZOOM EN ALTA DEFINICIÓN REAL ---
+        // --- 🚀 SOLUCIÓN DEL ZOOM DINÁMICA, NÍTIDA Y NAVEGABLE ---
         function openZoom(imgElement) {
             const modal = document.getElementById('zoomModal');
             const zoomImg = document.getElementById('zoomImg');
             
-            if(modal && zoomImg && imgElement && imgElement.src) {
-                zoomImg.src = imgElement.src; // Captura la imagen exacta nítida renderizada
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Detiene el fondo
+            if (imgElement && imgElement.src) {
+                // Buscamos cuál de las 3 imágenes del array coincide con la foto clickeada en pantalla
+                const indexEncontrado = seleccionImagesArr.indexOf(imgElement.src);
+                if (indexEncontrado !== -1) {
+                    currentZoomIndex = indexEncontrado;
+                } else {
+                    // Respaldo por ID si no hace match exacto por URL de texto
+                    if (imgElement.id.includes('1')) currentZoomIndex = 0;
+                    if (imgElement.id.includes('2')) currentZoomIndex = 1;
+                    if (imgElement.id.includes('3')) currentZoomIndex = 2;
+                }
+                
+                zoomImg.src = seleccionImagesArr[currentZoomIndex] || imgElement.src;
             }
+            
+            if(modal && zoomImg.src) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // Función corregida: Detiene el cierre involuntario y pasa las fotos en bucle
+        function navigateZoom(event, direction) {
+            if (event) event.stopPropagation(); // Evita que el clic en la flecha cierre el modal por el clic del fondo
+            if (seleccionImagesArr.length === 0) return;
+            
+            currentZoomIndex = (currentZoomIndex + direction + seleccionImagesArr.length) % seleccionImagesArr.length;
+            document.getElementById('zoomImg').src = seleccionImagesArr[currentZoomIndex];
         }
         
         function closeZoom() { 
