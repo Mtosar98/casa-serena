@@ -209,9 +209,9 @@
                 <div class="lg:col-span-7 relative rounded-lg shadow-xl overflow-hidden bg-white p-3 border border-gray-100 group">
                     <div class="carousel-container rounded-sm">
                         <div class="carousel-slide" id="carouselSlide">
-                            <img id="seleccion-img-1" src="imagenes/sillon-arg-1.jpg" class="carousel-img" onclick="openZoom(this.src)" alt="Slide 1">
-                            <img id="seleccion-img-2" src="imagenes/sillon-arg-2.jpg" class="carousel-img" onclick="openZoom(this.src)" alt="Slide 2">
-                            <img id="seleccion-img-3" src="imagenes/sillon-arg-3.jpg" class="carousel-img" onclick="openZoom(this.src)" alt="Slide 3">
+                            <img id="seleccion-img-1" src="" class="carousel-img" onclick="openZoom(0)" alt="Slide 1">
+                            <img id="seleccion-img-2" src="" class="carousel-img" onclick="openZoom(1)" alt="Slide 2">
+                            <img id="seleccion-img-3" src="" class="carousel-img" onclick="openZoom(2)" alt="Slide 3">
                         </div>
                     </div>
 
@@ -285,29 +285,29 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
-                <a href="https://www.instagram.com/reel/DU8uGkpEQy9/?igsh=MWk2ODh1NzV0ZG10Yg==" target="_blank" class="aspect-square bg-gray-100 overflow-hidden relative group block shadow-md border border-gray-100">
-                    <img src="imagenes/sillon-beige.jpg" class="w-full h-full object-cover grayscale-[15%] group-hover:scale-105 transition duration-500">
+                <a id="insta-link-1" href="#" target="_blank" class="aspect-square bg-gray-100 overflow-hidden relative group block shadow-md border border-gray-100">
+                    <img id="insta-img-1" src="" class="w-full h-full object-cover grayscale-[15%] group-hover:scale-105 transition duration-500">
                     <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col items-center justify-center text-white space-y-2">
                         <div class="w-10 h-10 border-2 border-white rounded-full flex items-center justify-center bg-white/20"><i class="fa fa-play ml-0.5 text-sm"></i></div>
                         <span class="text-[10px] uppercase font-bold tracking-widest">Reproducir Reel</span>
                     </div>
                 </a>
-                <a href="https://www.instagram.com/reel/DYhvnaCsBu-/?igsh=MWo0MmY2MHZ4cDF3OA==" target="_blank" class="aspect-square bg-gray-100 overflow-hidden relative group block shadow-md border border-gray-100">
-                    <img src="imagenes/botinero-arena.jpg" class="w-full h-full object-cover grayscale-[15%] group-hover:scale-105 transition duration-500">
+                <a id="insta-link-2" href="#" target="_blank" class="aspect-square bg-gray-100 overflow-hidden relative group block shadow-md border border-gray-100">
+                    <img id="insta-img-2" src="" class="w-full h-full object-cover grayscale-[15%] group-hover:scale-105 transition duration-500">
                     <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col items-center justify-center text-white space-y-2">
                         <div class="w-10 h-10 border-2 border-white rounded-full flex items-center justify-center bg-white/20"><i class="fa fa-play ml-0.5 text-sm"></i></div>
                         <span class="text-[10px] uppercase font-bold tracking-widest">Reproducir Reel</span>
                     </div>
                 </a>
-                <a href="https://www.instagram.com/reel/DRXERUvEQm6/?igsh=MTBsZDJ5MWhubzViMQ==" target="_blank" class="aspect-square bg-gray-100 overflow-hidden relative group block shadow-md border border-gray-100">
-                    <img src="imagenes/taller.jpg" class="w-full h-full object-cover grayscale-[15%] group-hover:scale-105 transition duration-500">
+                <a id="insta-link-3" href="#" target="_blank" class="aspect-square bg-gray-100 overflow-hidden relative group block shadow-md border border-gray-100">
+                    <img id="insta-img-3" src="" class="w-full h-full object-cover grayscale-[15%] group-hover:scale-105 transition duration-500">
                     <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col items-center justify-center text-white space-y-2">
                         <div class="w-10 h-10 border-2 border-white rounded-full flex items-center justify-center bg-white/20"><i class="fa fa-play ml-0.5 text-sm"></i></div>
                         <span class="text-[10px] uppercase font-bold tracking-widest">Reproducir Reel</span>
                     </div>
                 </a>
-                <a href="https://www.instagram.com/reel/DYaO4u7MeZv/?igsh=bDFubXV1ZHF5OTR4" target="_blank" class="aspect-square bg-gray-100 overflow-hidden relative group block shadow-md border border-gray-100">
-                    <img src="imagenes/sillon-arg-2.jpg" class="w-full h-full object-cover grayscale-[15%] group-hover:scale-105 transition duration-500">
+                <a id="insta-link-4" href="#" target="_blank" class="aspect-square bg-gray-100 overflow-hidden relative group block shadow-md border border-gray-100">
+                    <img id="insta-img-4" src="" class="w-full h-full object-cover grayscale-[15%] group-hover:scale-105 transition duration-500">
                     <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col items-center justify-center text-white space-y-2">
                         <div class="w-10 h-10 border-2 border-white rounded-full flex items-center justify-center bg-white/20"><i class="fa fa-play ml-0.5 text-sm"></i></div>
                         <span class="text-[10px] uppercase font-bold tracking-widest">Reproducir Reel</span>
@@ -333,6 +333,7 @@
 
     <script>
         let costoEnvioActual = 0;
+        let seleccionImagesArr = []; // Guardará las fotos HD de la selección
 
         async function fetchImagesAndTextsFromSheet() {
             try {
@@ -373,8 +374,22 @@
                         let targetImg = document.getElementById(`seleccion-img-${seleccionCount}`);
                         if (targetImg) {
                             targetImg.src = contenido;
+                            seleccionImagesArr.push(contenido); // Guardamos la url limpia en HD
                             seleccionCount++;
                         }
+                    }
+                    // --- MAPEADO DE INSTAGRAM DIRECTO AL GOOGLE SHEETS ---
+                    else if (sector === "instagram foto 1" && document.getElementById('insta-img-1')) {
+                        document.getElementById('insta-img-1').src = contenido;
+                    }
+                    else if (sector === "instagram foto 2" && document.getElementById('insta-img-2')) {
+                        document.getElementById('insta-img-2').src = contenido;
+                    }
+                    else if (sector === "instagram foto 3" && document.getElementById('insta-img-3')) {
+                        document.getElementById('insta-img-3').src = contenido;
+                    }
+                    else if (sector === "instagram foto 4" && document.getElementById('insta-img-4')) {
+                        document.getElementById('insta-img-4').src = contenido;
                     }
                     else if (sector === "texto marquesina") {
                         if(document.getElementById('web-marquesina')) document.getElementById('web-marquesina').innerHTML = contenido;
@@ -400,6 +415,13 @@
                         if(document.getElementById('web-historia-parrafo-2')) document.getElementById('web-historia-parrafo-2').innerHTML = contenido;
                     }
                 }
+                
+                // Mapeamos los links reales de tus reels fijos de instagram
+                if(document.getElementById('insta-link-1')) document.getElementById('insta-link-1').href = "https://www.instagram.com/reel/DU8uGkpEQy9/?igsh=MWk2ODh1NzV0ZG10Yg==";
+                if(document.getElementById('insta-link-2')) document.getElementById('insta-link-2').href = "https://www.instagram.com/reel/DYhvnaCsBu-/?igsh=MWo0MmY2MHZ4cDF3OA==";
+                if(document.getElementById('insta-link-3')) document.getElementById('insta-link-3').href = "https://www.instagram.com/reel/DRXERUvEQm6/?igsh=MTBsZDJ5MWhubzViMQ==";
+                if(document.getElementById('insta-link-4')) document.getElementById('insta-link-4').href = "https://www.instagram.com/reel/DYaO4u7MeZv/?igsh=bDFubXV1ZHF5OTR4";
+                
             } catch (error) {
                 console.error("Error al sincronizar datos con Google Sheets:", error);
             }
@@ -430,7 +452,6 @@
                 totalDisplay.innerText = `$${cart.reduce((acc, curr) => acc + curr.price, 0).toLocaleString('es-AR')}`;
             }
             
-            // Forzar recálculo dinámico basado en las opciones elegidas
             calcularTotalFinanzas();
         }
 
@@ -518,7 +539,9 @@
 
         function addSillonArg() {
             let cart = JSON.parse(localStorage.getItem('cs_cart')) || [];
-            cart.push({name: 'Sillón Destacado - Edición Casa Serena', price: 450000, img: 'imagenes/sillon-arg-1.jpg'});
+            // 🚀 SOLUCIÓN DE FOTO ROTA: Toma la primera imagen real de tu Google Sheets de forma dinámica
+            const imgOficial = seleccionImagesArr[0] || 'imagenes/portada.jpg';
+            cart.push({name: 'Sillón Destacado - Edición Casa Serena', price: 450000, img: imgOficial});
             localStorage.setItem('cs_cart', JSON.stringify(cart));
             alert('¡El producto se ha sumado a tu pedido actual!');
             renderCart(); toggleCart();
@@ -648,12 +671,16 @@
         function prevManualSlide() { stopAutoSlide(); currentSlide = (currentSlide - 1 + 3) % 3; updateCarousel(); }
         function setManualSlide(index) { stopAutoSlide(); currentSlide = index; updateCarousel(); }
 
-        // --- LÓGICA DE ZOOM ---
-        function openZoom(src) {
+        // --- 🚀 SOLUCIÓN DEL ZOOM EN ALTA DEFINICIÓN ---
+        function openZoom(index) {
             const modal = document.getElementById('zoomModal');
             const zoomImg = document.getElementById('zoomImg');
-            if(modal && zoomImg) {
-                zoomImg.src = src;
+            
+            // Toma la URL limpia de la imagen directamente de la base de datos de Sheets
+            const imgHD = seleccionImagesArr[index];
+            
+            if(modal && zoomImg && imgHD) {
+                zoomImg.src = imgHD;
                 modal.classList.remove('hidden');
             }
         }
