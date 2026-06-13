@@ -340,11 +340,11 @@
         let seleccionImagesArr = [];
         let currentZoomIndex = 0;
 
-        // 🚀 NUEVA FUNCIÓN OPTIMIZADA CON CACHÉ LOCAL (LocalStorage)
+        // 🚀 CONTROL SEGURO DE CACHÉ LOCAL SIN CRUCE DE DATOS ANTERIORES
         async function fetchImagesAndTextsFromSheet() {
             const cacheKey = "cs_index_cache";
             
-            // Paso 1: Leer memoria local de inmediato para eliminar esperas en blanco
+            // 1. Mostrar la versión en caché instantáneamente si existe (Velocidad de carga inmediata)
             const cachedData = localStorage.getItem(cacheKey);
             if (cachedData) {
                 try {
@@ -355,15 +355,15 @@
             }
 
             try {
-                // Paso 2: Consultar la planilla de Google Sheets de fondo sin molestar al cliente
+                // 2. Traer la planilla de fondo y comparar si hay cambios en vivo
                 const response = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pub?output=csv&gid=847433066&cachebuster=${new Date().getTime()}`);
                 const csvText = await response.text();
                 const lines = csvText.split(/\r?\n/);
 
-                // Guardar la información actualizada en memoria para la próxima carga
+                // Guardar la información limpia en el LocalStorage
                 localStorage.setItem(cacheKey, JSON.stringify(lines));
 
-                // Volver a procesar de forma fluida por si hubo cambios en la planilla
+                // Volver a renderizar fluidamente para que impacte el cambio (ej: el texto de la marquesina)
                 procesarLineasCSV(lines);
                 if(typeof updateHeroCarousel === 'function') updateHeroCarousel();
                 if(typeof updateCarousel === 'function') updateCarousel();
@@ -373,15 +373,14 @@
             }
         }
 
-        // Función auxiliar encargada del mapeo exacto de tus textos e imágenes
         function procesarLineasCSV(lines) {
             let seleccionCount = 1;
-            seleccionImagesArr = []; // Limpiar para evitar duplicados en el zoom
+            let tempImagesArr = []; // Array temporal para evitar duplicar datos en memoria
 
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
                 if (!line) continue;
-                const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                const columns = line.split(/,(?=(?:?:[^"]*"){2})*[^"]*$)/);
                 if (columns.length < 3) continue;
 
                 const contenido = columns[1]?.replace(/"/g, '').trim();
@@ -409,7 +408,7 @@
                     let targetImg = document.getElementById(`seleccion-img-${seleccionCount}`);
                     if (targetImg) {
                         targetImg.src = contenido;
-                        seleccionImagesArr.push(contenido);
+                        tempImagesArr.push(contenido);
                         seleccionCount++;
                     }
                 }
@@ -448,6 +447,10 @@
                 else if (sector === "texto historia parrafo 2") {
                     if(document.getElementById('web-historia-parrafo-2')) document.getElementById('web-historia-parrafo-2').innerHTML = contenido;
                 }
+            }
+
+            if (tempImagesArr.length > 0) {
+                seleccionImagesArr = tempImagesArr;
             }
 
             if(document.getElementById('insta-link-1')) document.getElementById('insta-link-1').href = "https://www.instagram.com/reel/DU8uGkpEQy9/?igsh=MWk2ODh1NzV0ZG10Yg==";
