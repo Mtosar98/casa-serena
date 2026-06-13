@@ -209,9 +209,9 @@
                 <div class="lg:col-span-7 relative rounded-lg shadow-xl overflow-hidden bg-white p-3 border border-gray-100 group">
                     <div class="carousel-container rounded-sm">
                         <div class="carousel-slide" id="carouselSlide">
-                            <img id="seleccion-img-1" src="" class="carousel-img" onclick="openZoom(0)" alt="Slide 1">
-                            <img id="seleccion-img-2" src="" class="carousel-img" onclick="openZoom(1)" alt="Slide 2">
-                            <img id="seleccion-img-3" src="" class="carousel-img" onclick="openZoom(2)" alt="Slide 3">
+                            <img id="seleccion-img-1" src="" class="carousel-img" onclick="openZoom(this)" alt="Slide 1">
+                            <img id="seleccion-img-2" src="" class="carousel-img" onclick="openZoom(this)" alt="Slide 2">
+                            <img id="seleccion-img-3" src="" class="carousel-img" onclick="openZoom(this)" alt="Slide 3">
                         </div>
                     </div>
 
@@ -338,96 +338,122 @@
     <script>
         let costoEnvioActual = 0;
         let seleccionImagesArr = [];
-        let currentZoomIndex = 0; // Control de posición de foto dentro del zoom
+        let currentZoomIndex = 0;
 
+        // 🚀 NUEVA FUNCIÓN OPTIMIZADA CON CACHÉ LOCAL (LocalStorage)
         async function fetchImagesAndTextsFromSheet() {
+            const cacheKey = "cs_index_cache";
+            
+            // Paso 1: Leer memoria local de inmediato para eliminar esperas en blanco
+            const cachedData = localStorage.getItem(cacheKey);
+            if (cachedData) {
+                try {
+                    procesarLineasCSV(JSON.parse(cachedData));
+                    if(typeof updateHeroCarousel === 'function') updateHeroCarousel();
+                    if(typeof updateCarousel === 'function') updateCarousel();
+                } catch(e) { console.error("Error leyendo caché local:", e); }
+            }
+
             try {
+                // Paso 2: Consultar la planilla de Google Sheets de fondo sin molestar al cliente
                 const response = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pub?output=csv&gid=847433066&cachebuster=${new Date().getTime()}`);
                 const csvText = await response.text();
                 const lines = csvText.split(/\r?\n/);
 
-                let seleccionCount = 1;
+                // Guardar la información actualizada en memoria para la próxima carga
+                localStorage.setItem(cacheKey, JSON.stringify(lines));
 
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-                    const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if (columns.length < 3) continue;
-
-                    const contenido = columns[1]?.replace(/"/g, '').trim();
-                    const sector = columns[2]?.replace(/"/g, '').trim().toLowerCase();
-
-                    if (!contenido) continue;
-
-                    if (sector === "logo") {
-                        if(document.getElementById('web-logo')) document.getElementById('web-logo').src = contenido;
-                        if(document.getElementById('web-logo-footer')) document.getElementById('web-logo-footer').src = contenido;
-                    } 
-                    else if (sector === "portada principal 1") {
-                        if(document.getElementById('web-portada-1')) document.getElementById('web-portada-1').src = contenido;
-                    }
-                    else if (sector === "portada principal 2") {
-                        if(document.getElementById('web-portada-2')) document.getElementById('web-portada-2').src = contenido;
-                    }
-                    else if (sector === "portada principal 3") {
-                        if(document.getElementById('web-portada-3')) document.getElementById('web-portada-3').src = contenido;
-                    }
-                    else if (sector.includes("nuestra historia") && (contenido.startsWith('http') || contenido.startsWith('imagenes/'))) {
-                        if(document.getElementById('web-taller')) document.getElementById('web-taller').src = contenido;
-                    } 
-                    else if (sector.includes("linea seleccion") && (contenido.startsWith('http') || contenido.startsWith('imagenes/'))) {
-                        let targetImg = document.getElementById(`seleccion-img-${seleccionCount}`);
-                        if (targetImg) {
-                            targetImg.src = contenido;
-                            seleccionImagesArr.push(contenido);
-                            seleccionCount++;
-                        }
-                    }
-                    else if (sector.includes("instagram foto 1") && document.getElementById('insta-img-1')) {
-                        document.getElementById('insta-img-1').src = contenido;
-                    }
-                    else if (sector.includes("instagram foto 2") && document.getElementById('insta-img-2')) {
-                        document.getElementById('insta-img-2').src = contenido;
-                    }
-                    else if (sector.includes("instagram foto 3") && document.getElementById('insta-img-3')) {
-                        document.getElementById('insta-img-3').src = contenido;
-                    }
-                    else if (sector.includes("instagram foto 4") && document.getElementById('insta-img-4')) {
-                        document.getElementById('insta-img-4').src = contenido;
-                    }
-                    else if (sector === "texto marquesina") {
-                        if(document.getElementById('web-marquesina')) document.getElementById('web-marquesina').innerHTML = contenido;
-                    }
-                    else if (sector === "texto nombre linea") {
-                        if(document.getElementById('menu-nombre-linea')) document.getElementById('menu-nombre-linea').innerHTML = contenido;
-                        if(document.getElementById('web-seleccion-etiqueta')) document.getElementById('web-seleccion-etiqueta').innerHTML = contenido;
-                        if(document.getElementById('hero-cta-linea')) document.getElementById('hero-cta-linea').innerHTML = contenido;
-                    }
-                    else if (sector === "texto seleccion titulo") {
-                        if(document.getElementById('web-seleccion-titulo')) document.getElementById('web-seleccion-titulo').innerHTML = contenido;
-                    }
-                    else if (sector === "texto seleccion parrafo") {
-                        if(document.getElementById('web-seleccion-parrafo')) document.getElementById('web-seleccion-parrafo').innerHTML = contenido;
-                    }
-                    else if (sector === "texto historia titulo") {
-                        if(document.getElementById('web-historia-titulo')) document.getElementById('web-historia-titulo').innerHTML = contenido;
-                    }
-                    else if (sector === "texto historia parrafo 1") {
-                        if(document.getElementById('web-historia-parrafo-1')) document.getElementById('web-historia-parrafo-1').innerHTML = contenido;
-                    }
-                    else if (sector === "texto historia parrafo 2") {
-                        if(document.getElementById('web-historia-parrafo-2')) document.getElementById('web-historia-parrafo-2').innerHTML = contenido;
-                    }
-                }
-                
-                if(document.getElementById('insta-link-1')) document.getElementById('insta-link-1').href = "https://www.instagram.com/reel/DU8uGkpEQy9/?igsh=MWk2ODh1NzV0ZG10Yg==";
-                if(document.getElementById('insta-link-2')) document.getElementById('insta-link-2').href = "https://www.instagram.com/reel/DYhvnaCsBu-/?igsh=MWo0MmY2MHZ4cDF3OA==";
-                if(document.getElementById('insta-link-3')) document.getElementById('insta-link-3').href = "https://www.instagram.com/reel/DRXERUvEQm6/?igsh=MTBsZDJ5MWhubzViMQ==";
-                if(document.getElementById('insta-link-4')) document.getElementById('insta-link-4').href = "https://www.instagram.com/reel/DYaO4u7MeZv/?igsh=bDFubXV1ZHF5OTR4";
+                // Volver a procesar de forma fluida por si hubo cambios en la planilla
+                procesarLineasCSV(lines);
+                if(typeof updateHeroCarousel === 'function') updateHeroCarousel();
+                if(typeof updateCarousel === 'function') updateCarousel();
                 
             } catch (error) {
                 console.error("Error al sincronizar datos con Google Sheets:", error);
             }
+        }
+
+        // Función auxiliar encargada del mapeo exacto de tus textos e imágenes
+        function procesarLineasCSV(lines) {
+            let seleccionCount = 1;
+            seleccionImagesArr = []; // Limpiar para evitar duplicados en el zoom
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                if (columns.length < 3) continue;
+
+                const contenido = columns[1]?.replace(/"/g, '').trim();
+                const sector = columns[2]?.replace(/"/g, '').trim().toLowerCase();
+
+                if (!contenido) continue;
+
+                if (sector === "logo") {
+                    if(document.getElementById('web-logo')) document.getElementById('web-logo').src = contenido;
+                    if(document.getElementById('web-logo-footer')) document.getElementById('web-logo-footer').src = contenido;
+                } 
+                else if (sector === "portada principal 1") {
+                    if(document.getElementById('web-portada-1')) document.getElementById('web-portada-1').src = contenido;
+                }
+                else if (sector === "portada principal 2") {
+                    if(document.getElementById('web-portada-2')) document.getElementById('web-portada-2').src = contenido;
+                }
+                else if (sector === "portada principal 3") {
+                    if(document.getElementById('web-portada-3')) document.getElementById('web-portada-3').src = contenido;
+                }
+                else if (sector.includes("nuestra historia") && (contenido.startsWith('http') || contenido.startsWith('imagenes/'))) {
+                    if(document.getElementById('web-taller')) document.getElementById('web-taller').src = contenido;
+                } 
+                else if (sector.includes("linea seleccion") && (contenido.startsWith('http') || contenido.startsWith('imagenes/'))) {
+                    let targetImg = document.getElementById(`seleccion-img-${seleccionCount}`);
+                    if (targetImg) {
+                        targetImg.src = contenido;
+                        seleccionImagesArr.push(contenido);
+                        seleccionCount++;
+                    }
+                }
+                else if (sector.includes("instagram foto 1") && document.getElementById('insta-img-1')) {
+                    document.getElementById('insta-img-1').src = contenido;
+                }
+                else if (sector.includes("instagram foto 2") && document.getElementById('insta-img-2')) {
+                    document.getElementById('insta-img-2').src = contenido;
+                }
+                else if (sector.includes("instagram foto 3") && document.getElementById('insta-img-3')) {
+                    document.getElementById('insta-img-3').src = contenido;
+                }
+                else if (sector.includes("instagram foto 4") && document.getElementById('insta-img-4')) {
+                    document.getElementById('insta-img-4').src = contenido;
+                }
+                else if (sector === "texto marquesina") {
+                    if(document.getElementById('web-marquesina')) document.getElementById('web-marquesina').innerHTML = contenido;
+                }
+                else if (sector === "texto nombre linea") {
+                    if(document.getElementById('menu-nombre-linea')) document.getElementById('menu-nombre-linea').innerHTML = contenido;
+                    if(document.getElementById('web-seleccion-etiqueta')) document.getElementById('web-seleccion-etiqueta').innerHTML = contenido;
+                    if(document.getElementById('hero-cta-linea')) document.getElementById('hero-cta-linea').innerHTML = contenido;
+                }
+                else if (sector === "texto seleccion titulo") {
+                    if(document.getElementById('web-seleccion-titulo')) document.getElementById('web-seleccion-titulo').innerHTML = contenido;
+                }
+                else if (sector === "texto seleccion parrafo") {
+                    if(document.getElementById('web-seleccion-parrafo')) document.getElementById('web-seleccion-parrafo').innerHTML = contenido;
+                }
+                else if (sector === "texto historia titulo") {
+                    if(document.getElementById('web-historia-titulo')) document.getElementById('web-historia-titulo').innerHTML = contenido;
+                }
+                else if (sector === "texto historia parrafo 1") {
+                    if(document.getElementById('web-historia-parrafo-1')) document.getElementById('web-historia-parrafo-1').innerHTML = contenido;
+                }
+                else if (sector === "texto historia parrafo 2") {
+                    if(document.getElementById('web-historia-parrafo-2')) document.getElementById('web-historia-parrafo-2').innerHTML = contenido;
+                }
+            }
+
+            if(document.getElementById('insta-link-1')) document.getElementById('insta-link-1').href = "https://www.instagram.com/reel/DU8uGkpEQy9/?igsh=MWk2ODh1NzV0ZG10Yg==";
+            if(document.getElementById('insta-link-2')) document.getElementById('insta-link-2').href = "https://www.instagram.com/reel/DYhvnaCsBu-/?igsh=MWo0MmY2MHZ4cDF3OA==";
+            if(document.getElementById('insta-link-3')) document.getElementById('insta-link-3').href = "https://www.instagram.com/reel/DRXERUvEQm6/?igsh=MTBsZDJ5MWhubzViMQ==";
+            if(document.getElementById('insta-link-4')) document.getElementById('insta-link-4').href = "https://www.instagram.com/reel/DYaO4u7MeZv/?igsh=bDFubXV1ZHF5OTR4";
         }
 
         function toggleCart() { document.body.classList.toggle('cart-open'); renderCart(); }
@@ -672,18 +698,16 @@
         function prevManualSlide() { stopAutoSlide(); currentSlide = (currentSlide - 1 + 3) % 3; updateCarousel(); }
         function setManualSlide(index) { stopAutoSlide(); currentSlide = index; updateCarousel(); }
 
-        // --- 🚀 SOLUCIÓN DEL ZOOM DINÁMICA, NÍTIDA Y NAVEGABLE ---
+        // --- SOLUCIÓN DEL ZOOM DINÁMICA, NÍTIDA Y NAVEGABLE ---
         function openZoom(imgElement) {
             const modal = document.getElementById('zoomModal');
             const zoomImg = document.getElementById('zoomImg');
             
             if (imgElement && imgElement.src) {
-                // Buscamos cuál de las 3 imágenes del array coincide con la foto clickeada en pantalla
                 const indexEncontrado = seleccionImagesArr.indexOf(imgElement.src);
                 if (indexEncontrado !== -1) {
                     currentZoomIndex = indexEncontrado;
                 } else {
-                    // Respaldo por ID si no hace match exacto por URL de texto
                     if (imgElement.id.includes('1')) currentZoomIndex = 0;
                     if (imgElement.id.includes('2')) currentZoomIndex = 1;
                     if (imgElement.id.includes('3')) currentZoomIndex = 2;
@@ -698,9 +722,8 @@
             }
         }
 
-        // Función corregida: Detiene el cierre involuntario y pasa las fotos en bucle
         function navigateZoom(event, direction) {
-            if (event) event.stopPropagation(); // Evita que el clic en la flecha cierre el modal por el clic del fondo
+            if (event) event.stopPropagation();
             if (seleccionImagesArr.length === 0) return;
             
             currentZoomIndex = (currentZoomIndex + direction + seleccionImagesArr.length) % seleccionImagesArr.length;
