@@ -117,27 +117,4 @@
 
             try {
                 // Paso 2: Consultar la planilla en segundo plano de manera invisible
-                const response = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pub?output=csv&gid=847433066&cachebuster=${new Date().getTime()}`);
-                const csvText = await response.text();
-                const lines = csvText.split(/\r?\n/);
-                for (let i = 1; i < lines.length; i++) {
-                    const columns = lines[i].split(/,(?=(?:Private.*"){2})*[^"]*$)/);
-                    const columnsClean = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    
-                    if (columnsClean.length >= 3 && columnsClean[2]?.replace(/"/g, '').trim().toLowerCase() === "logo") {
-                        const logoUrl = columnsClean[1]?.replace(/"/g, '').trim();
-                        if(logoUrl) {
-                            if(document.getElementById('web-logo')) document.getElementById('web-logo').src = logoUrl;
-                            localStorage.setItem(cacheKey, logoUrl); // Guardamos o actualizamos la memoria local
-                        }
-                        break;
-                    }
-                }
-            } catch (e) {
-                console.error("Error sincronizando el logo en contacto:", e);
-            }
-        }
-        window.onload = fetchLogoForContacto;
-    </script>
-</body>
-</html>
+                const response = await fetch(`
