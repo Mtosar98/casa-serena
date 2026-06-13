@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Casa Serena | Premium Home Decor</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link class="cdn-link" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,400;0,700;1,400&family=Raleway:wght=300;400;500;600;700&display=swap');
         html { scroll-behavior: smooth; }
@@ -259,7 +259,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
                 <div class="space-y-6 order-2 md:order-1">
                     <span class="text-[10px] uppercase tracking-[0.5em] text-[#D4A373] font-bold block">Mobiliario de autor</span>
-                    <h2 id="web-historia-titulo" class="text-4xl font-serif italic text-[#5D4037] leading-tight">Maderas con alma,<br>procesos con calma.</h2>
+                    <h2 id="web-historia-titulo" class="text-4xl font-serif italic text-[#5D4037] leading-tight">Maderas con alma,<br>processes con calma.</h2>
                     <p id="web-historia-parrafo-1" class="text-gray-500 text-sm leading-relaxed italic font-light">
                         En Casa Serena creemos que el hogar debe ser un santuario de paz. Desde hace más de una década, nos dedicamos a diseñar y fabricar piezas de mobiliario exclusivas que fusionan la calidez de la madera nativa patagónica con líneas contemporáneas de lujo y un confort inigualable.
                     </p>
@@ -340,123 +340,102 @@
         let seleccionImagesArr = [];
         let currentZoomIndex = 0;
 
-        // 🚀 CONTROL SEGURO DE CACHÉ LOCAL SIN CRUCE DE DATOS ANTERIORES
+        // 🚀 VERSIÓN ULTRAESTABLE: Conexión directa y fluida a Google Sheets eliminando el caché problemático
         async function fetchImagesAndTextsFromSheet() {
-            const cacheKey = "cs_index_cache";
-            
-            // 1. Mostrar la versión en caché instantáneamente si existe (Velocidad de carga inmediata)
-            const cachedData = localStorage.getItem(cacheKey);
-            if (cachedData) {
-                try {
-                    procesarLineasCSV(JSON.parse(cachedData));
-                    if(typeof updateHeroCarousel === 'function') updateHeroCarousel();
-                    if(typeof updateCarousel === 'function') updateCarousel();
-                } catch(e) { console.error("Error leyendo caché local:", e); }
-            }
-
             try {
-                // 2. Traer la planilla de fondo y comparar si hay cambios en vivo
+                // Hacemos el llamado directo agregando un cachebuster para traer siempre la última actualización del Sheets en vivo
                 const response = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pub?output=csv&gid=847433066&cachebuster=${new Date().getTime()}`);
                 const csvText = await response.text();
                 const lines = csvText.split(/\r?\n/);
 
-                // Guardar la información limpia en el LocalStorage
-                localStorage.setItem(cacheKey, JSON.stringify(lines));
+                let seleccionCount = 1;
+                seleccionImagesArr = []; // Limpiamos para evitar duplicados en el zoom navegable
 
-                // Volver a renderizar fluidamente para que impacte el cambio (ej: el texto de la marquesina)
-                procesarLineasCSV(lines);
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    const columns = line.split(/,(?=(?:?:[^"]*"){2})*[^"]*$)/);
+                    if (columns.length < 3) continue;
+
+                    const contenido = columns[1]?.replace(/"/g, '').trim();
+                    const sector = columns[2]?.replace(/"/g, '').trim().toLowerCase();
+
+                    if (!contenido) continue;
+
+                    // Mapeo seguro de imágenes y textos directo del Sheet en tiempo real
+                    if (sector === "logo") {
+                        if(document.getElementById('web-logo')) document.getElementById('web-logo').src = contenido;
+                        if(document.getElementById('web-logo-footer')) document.getElementById('web-logo-footer').src = contenido;
+                    } 
+                    else if (sector === "portada principal 1") {
+                        if(document.getElementById('web-portada-1')) document.getElementById('web-portada-1').src = contenido;
+                    }
+                    else if (sector === "portada principal 2") {
+                        if(document.getElementById('web-portada-2')) document.getElementById('web-portada-2').src = contenido;
+                    }
+                    else if (sector === "portada principal 3") {
+                        if(document.getElementById('web-portada-3')) document.getElementById('web-portada-3').src = contenido;
+                    }
+                    else if (sector.includes("nuestra historia") && (contenido.startsWith('http') || contenido.startsWith('imagenes/'))) {
+                        if(document.getElementById('web-taller')) document.getElementById('web-taller').src = contenido;
+                    } 
+                    else if (sector.includes("linea seleccion") && (contenido.startsWith('http') || contenido.startsWith('imagenes/'))) {
+                        let targetImg = document.getElementById(`seleccion-img-${seleccionCount}`);
+                        if (targetImg) {
+                            targetImg.src = contenido;
+                            seleccionImagesArr.push(contenido);
+                            seleccionCount++;
+                        }
+                    }
+                    else if (sector.includes("instagram foto 1") && document.getElementById('insta-img-1')) {
+                        document.getElementById('insta-img-1').src = contenido;
+                    }
+                    else if (sector.includes("instagram foto 2") && document.getElementById('insta-img-2')) {
+                        document.getElementById('insta-img-2').src = contenido;
+                    }
+                    else if (sector.includes("instagram foto 3") && document.getElementById('insta-img-3')) {
+                        document.getElementById('insta-img-3').src = contenido;
+                    }
+                    else if (sector.includes("instagram foto 4") && document.getElementById('insta-img-4')) {
+                        document.getElementById('insta-img-4').src = contenido;
+                    }
+                    else if (sector === "texto marquesina") {
+                        if(document.getElementById('web-marquesina')) document.getElementById('web-marquesina').innerHTML = contenido;
+                    }
+                    else if (sector === "texto nombre linea") {
+                        if(document.getElementById('menu-nombre-linea')) document.getElementById('menu-nombre-linea').innerHTML = contenido;
+                        if(document.getElementById('web-seleccion-etiqueta')) document.getElementById('web-seleccion-etiqueta').innerHTML = contenido;
+                        if(document.getElementById('hero-cta-linea')) document.getElementById('hero-cta-linea').innerHTML = contenido;
+                    }
+                    else if (sector === "texto seleccion titulo") {
+                        if(document.getElementById('web-seleccion-titulo')) document.getElementById('web-seleccion-titulo').innerHTML = contenido;
+                    }
+                    else if (sector === "texto seleccion parrafo") {
+                        if(document.getElementById('web-seleccion-parrafo')) document.getElementById('web-seleccion-parrafo').innerHTML = contenido;
+                    }
+                    else if (sector === "texto historia titulo") {
+                        if(document.getElementById('web-historia-titulo')) document.getElementById('web-historia-titulo').innerHTML = contenido;
+                    }
+                    else if (sector === "texto historia parrafo 1") {
+                        if(document.getElementById('web-historia-parrafo-1')) document.getElementById('web-historia-parrafo-1').innerHTML = contenido;
+                    }
+                    else if (sector === "texto historia parrafo 2") {
+                        if(document.getElementById('web-historia-parrafo-2')) document.getElementById('web-historia-parrafo-2').innerHTML = contenido;
+                    }
+                }
+
+                if(document.getElementById('insta-link-1')) document.getElementById('insta-link-1').href = "https://www.instagram.com/reel/DU8uGkpEQy9/?igsh=MWk2ODh1NzV0ZG10Yg==";
+                if(document.getElementById('insta-link-2')) document.getElementById('insta-link-2').href = "https://www.instagram.com/reel/DYhvnaCsBu-/?igsh=MWo0MmY2MHZ4cDF3OA==";
+                if(document.getElementById('insta-link-3')) document.getElementById('insta-link-3').href = "https://www.instagram.com/reel/DRXERUvEQm6/?igsh=MTBsZDJ5MWhubzViMQ==";
+                if(document.getElementById('insta-link-4')) document.getElementById('insta-link-4').href = "https://www.instagram.com/reel/DYaO4u7MeZv/?igsh=bDFubXV1ZHF5OTR4";
+
+                // Forzar refresco visual de los carruseles una vez mapeados los elementos
                 if(typeof updateHeroCarousel === 'function') updateHeroCarousel();
                 if(typeof updateCarousel === 'function') updateCarousel();
-                
+
             } catch (error) {
                 console.error("Error al sincronizar datos con Google Sheets:", error);
             }
-        }
-
-        function procesarLineasCSV(lines) {
-            let seleccionCount = 1;
-            let tempImagesArr = []; // Array temporal para evitar duplicar datos en memoria
-
-            for (let i = 1; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (!line) continue;
-                const columns = line.split(/,(?=(?:?:[^"]*"){2})*[^"]*$)/);
-                if (columns.length < 3) continue;
-
-                const contenido = columns[1]?.replace(/"/g, '').trim();
-                const sector = columns[2]?.replace(/"/g, '').trim().toLowerCase();
-
-                if (!contenido) continue;
-
-                if (sector === "logo") {
-                    if(document.getElementById('web-logo')) document.getElementById('web-logo').src = contenido;
-                    if(document.getElementById('web-logo-footer')) document.getElementById('web-logo-footer').src = contenido;
-                } 
-                else if (sector === "portada principal 1") {
-                    if(document.getElementById('web-portada-1')) document.getElementById('web-portada-1').src = contenido;
-                }
-                else if (sector === "portada principal 2") {
-                    if(document.getElementById('web-portada-2')) document.getElementById('web-portada-2').src = contenido;
-                }
-                else if (sector === "portada principal 3") {
-                    if(document.getElementById('web-portada-3')) document.getElementById('web-portada-3').src = contenido;
-                }
-                else if (sector.includes("nuestra historia") && (contenido.startsWith('http') || contenido.startsWith('imagenes/'))) {
-                    if(document.getElementById('web-taller')) document.getElementById('web-taller').src = contenido;
-                } 
-                else if (sector.includes("linea seleccion") && (contenido.startsWith('http') || contenido.startsWith('imagenes/'))) {
-                    let targetImg = document.getElementById(`seleccion-img-${seleccionCount}`);
-                    if (targetImg) {
-                        targetImg.src = contenido;
-                        tempImagesArr.push(contenido);
-                        seleccionCount++;
-                    }
-                }
-                else if (sector.includes("instagram foto 1") && document.getElementById('insta-img-1')) {
-                    document.getElementById('insta-img-1').src = contenido;
-                }
-                else if (sector.includes("instagram foto 2") && document.getElementById('insta-img-2')) {
-                    document.getElementById('insta-img-2').src = contenido;
-                }
-                else if (sector.includes("instagram foto 3") && document.getElementById('insta-img-3')) {
-                    document.getElementById('insta-img-3').src = contenido;
-                }
-                else if (sector.includes("instagram foto 4") && document.getElementById('insta-img-4')) {
-                    document.getElementById('insta-img-4').src = contenido;
-                }
-                else if (sector === "texto marquesina") {
-                    if(document.getElementById('web-marquesina')) document.getElementById('web-marquesina').innerHTML = contenido;
-                }
-                else if (sector === "texto nombre linea") {
-                    if(document.getElementById('menu-nombre-linea')) document.getElementById('menu-nombre-linea').innerHTML = contenido;
-                    if(document.getElementById('web-seleccion-etiqueta')) document.getElementById('web-seleccion-etiqueta').innerHTML = contenido;
-                    if(document.getElementById('hero-cta-linea')) document.getElementById('hero-cta-linea').innerHTML = contenido;
-                }
-                else if (sector === "texto seleccion titulo") {
-                    if(document.getElementById('web-seleccion-titulo')) document.getElementById('web-seleccion-titulo').innerHTML = contenido;
-                }
-                else if (sector === "texto seleccion parrafo") {
-                    if(document.getElementById('web-seleccion-parrafo')) document.getElementById('web-seleccion-parrafo').innerHTML = contenido;
-                }
-                else if (sector === "texto historia titulo") {
-                    if(document.getElementById('web-historia-titulo')) document.getElementById('web-historia-titulo').innerHTML = contenido;
-                }
-                else if (sector === "texto historia parrafo 1") {
-                    if(document.getElementById('web-historia-parrafo-1')) document.getElementById('web-historia-parrafo-1').innerHTML = contenido;
-                }
-                else if (sector === "texto historia parrafo 2") {
-                    if(document.getElementById('web-historia-parrafo-2')) document.getElementById('web-historia-parrafo-2').innerHTML = contenido;
-                }
-            }
-
-            if (tempImagesArr.length > 0) {
-                seleccionImagesArr = tempImagesArr;
-            }
-
-            if(document.getElementById('insta-link-1')) document.getElementById('insta-link-1').href = "https://www.instagram.com/reel/DU8uGkpEQy9/?igsh=MWk2ODh1NzV0ZG10Yg==";
-            if(document.getElementById('insta-link-2')) document.getElementById('insta-link-2').href = "https://www.instagram.com/reel/DYhvnaCsBu-/?igsh=MWo0MmY2MHZ4cDF3OA==";
-            if(document.getElementById('insta-link-3')) document.getElementById('insta-link-3').href = "https://www.instagram.com/reel/DRXERUvEQm6/?igsh=MTBsZDJ5MWhubzViMQ==";
-            if(document.getElementById('insta-link-4')) document.getElementById('insta-link-4').href = "https://www.instagram.com/reel/DYaO4u7MeZv/?igsh=bDFubXV1ZHF5OTR4";
         }
 
         function toggleCart() { document.body.classList.toggle('cart-open'); renderCart(); }
@@ -740,6 +719,8 @@
         }
 
         window.onload = async () => {
+            // Limpieza prolija del caché problemático anterior para evitar cruces
+            localStorage.removeItem("cs_index_cache");
             renderCart();
             await fetchImagesAndTextsFromSheet();
             updateHeroCarousel();
