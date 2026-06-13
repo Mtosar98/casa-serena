@@ -216,17 +216,38 @@
 
         const MP_PUBLIC_KEY = "APP_USR-48317883-d78d-44d4-af94-34268b4b290f"; 
         
-        // 🚀 SE USA EL GID GLOBAL DE TU PESTAÑA INDEX PARA SINCRONIZAR TAMBIÉN EL LOGO ACÁ
+        // 🚀 FUNCIÓN ACTUALIZADA CON CACHÉ DE MEMORIA LOCAL (LocalStorage)
         async function fetchProductsFromSheets() {
+            const logoCacheKey = "cs_logo_cache";
+            const productsCacheKey = "cs_products_cache";
+
+            // Paso 1: Levantar del caché local de inmediato el logo y los productos
+            const cachedLogo = localStorage.getItem(logoCacheKey);
+            if (cachedLogo && document.getElementById('web-logo')) {
+                document.getElementById('web-logo').src = cachedLogo;
+            }
+
+            const cachedProducts = localStorage.getItem(productsCacheKey);
+            if (cachedProducts) {
+                try {
+                    products = JSON.parse(cachedProducts);
+                    filterProducts(categoriaActiva);
+                } catch(e) { console.error("Error leyendo caché de catálogo:", e); }
+            }
+
             try {
-                // Primero traemos las imágenes generales (como el logo) desde la pestaña index
+                // Paso 2: Traer las imágenes generales (como el logo) desde la pestaña index en segundo plano
                 const resIndex = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vRkT4Eef9b38vxe1lsP6N22JrvkpJkttjX2yKs5vjZWeFjhy5hqwnY5yNLR28t-4s6WG0kRnWdS85yf/pub?output=csv&gid=847433066&cachebuster=${new Date().getTime()}`);
                 const textIndex = await resIndex.text();
                 const linesIndex = textIndex.split(/\r?\n/);
                 for (let i = 1; i < linesIndex.length; i++) {
                     const columns = linesIndex[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     if (columns.length >= 3 && columns[2]?.replace(/"/g, '').trim().toLowerCase() === "logo") {
-                        if(document.getElementById('web-logo')) document.getElementById('web-logo').src = columns[1]?.replace(/"/g, '').trim();
+                        const logoUrl = columns[1]?.replace(/"/g, '').trim();
+                        if(logoUrl) {
+                            if(document.getElementById('web-logo')) document.getElementById('web-logo').src = logoUrl;
+                            localStorage.setItem(logoCacheKey, logoUrl);
+                        }
                     }
                 }
 
@@ -265,7 +286,10 @@
                         images: imagesArr
                     });
                 }
+                
                 products = loadedProducts;
+                // Guardamos la lista unificada en caché para la próxima carga instantánea
+                localStorage.setItem(productsCacheKey, JSON.stringify(products));
                 filterProducts(categoriaActiva);
             } catch (error) {
                 console.error("Error cargando base de datos de Google Sheets:", error);
@@ -337,7 +361,6 @@
             updateModalSliderPosition();
         }
 
-        // 🎨 CORRECCIÓN DE LA TRANSLACIÓN: Desplazamiento limpio sin saltos
         function updateModalSliderPosition() {
             const track = document.getElementById('modal-slider-track');
             if (track) {
